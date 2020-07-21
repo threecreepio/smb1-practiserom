@@ -4,3 +4,5 @@
 *.deb
 *.ips
 *.zip
+*.dep
+node_modules

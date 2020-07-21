@@ -1,0 +1,8 @@
+{
+    "files.exclude": {
+        "**/*.dbg": true,
+        "**/*.deb": true,
+        "**/*.dep": true,
+        "**/*.o": true
+    }
+}

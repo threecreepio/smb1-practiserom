@@ -6,16 +6,12 @@ IPS = flips.exe
 .PHONY: clean
 
 %.o: %.asm
-	$(AS) -g --debug-info $< -o $@
+	$(AS) --create-dep "$<.dep" -g --debug-info $< -o $@
 
-smb1-glitchedworlds.zip: patch.ips
-	zip $@ patch.ips README.md
-
-patch.ips: main.nes
-	$(IPS) --create --ips "original.nes" "main.nes" $@
-
-main.nes: layout main.o
+main.nes: layout main.o title/title.o smb.o
 	$(LD)  --dbgfile $@.dbg -C $^ -o $@
 
 clean:
-	rm -f smb1-glitchedworlds.zip main*.nes patch.ips *.o
+	rm -f ./main*.nes ./*.nes.dbg ./*.o ./*.dep ./*/*.o ./*/*.dep
+
+include $(wildcard ./*.dep ./*/*.dep)

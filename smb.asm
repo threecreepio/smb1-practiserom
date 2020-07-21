@@ -159,13 +159,13 @@ InitBuffer:    ldx VRAM_Buffer_Offset,y
                lda Mirror_PPU_CTRL_REG2  ;copy mirror of $2001 to register
                sta PPU_CTRL_REG2
                jsr SoundEngine           ;play sound
-               jsr BANK_PractiseNMI
-               ;REPLACED;jsr ReadJoypads           ;read joypads
+               jsr ReadJoypads           ;read joypads
                jsr PauseRoutine          ;handle pause
-               jsr UpdateTopScore
+               jsr BANK_PractiseNMI
+               ;REPLACED;jsr UpdateTopScore
                lda GamePauseStatus       ;check for pause status
                lsr
-               bcs PauseSkip2
+               bcs PauseSkip
                lda TimerControl          ;if master timer control not set, decrement
                beq DecTimers             ;all frame and interval timers
                dec TimerControl

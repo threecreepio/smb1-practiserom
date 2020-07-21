@@ -57,7 +57,6 @@ TStartGame:
 
 
 PractiseNMI:
-    jsr ReadJoypads
     lda LevelStarting
     bne @Next
     lda #$14
@@ -69,10 +68,11 @@ PractiseNMI:
     jsr B10Add
 
 @CheckForRestartLevel:
-    lda HeldButtons
+    lda JoypadBitMask
     and #(Select_Button | Start_Button)
     beq @Next
     lda HeldButtons
+    jsr ReadJoypads
 
     cmp #(Up_Dir | Select_Button)
     bne @CheckForReset
@@ -137,7 +137,6 @@ PractiseEnterStage:
 @Done:
     lda #0
     sta LevelEnding
-    jsr PractiseWriteBottomStatusLine2
 
 PractisePrintScore:
     clc

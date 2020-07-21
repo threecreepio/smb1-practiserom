@@ -1,12 +1,3 @@
-.macro WriteVRAMBufferFromMemory addr, len
-    lda #<(addr)
-    sta $0
-    lda #>(addr)
-    sta $1
-    ldy #len
-    jsr CopyDataToVRAMBuffer
-.endmacro
-
 BANKNR_TITLE = $2
 BANKNR_SMB = $0
 

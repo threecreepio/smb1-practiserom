@@ -7,21 +7,23 @@
 .import GetAreaDataAddrs
 .import LoadAreaPointer
 
-
-MenuSelectedItem = $40
-MenuSelectedSubitem = $41
+;; header for wram, change this value to clear out wram
+ROMSaveHeader:
+.byte "P200721"
+ROMSaveHeaderLen = * - ROMSaveHeader - 1
+WRAMSaveHeader = $6000
 
 ;; WRAM SPACE
-;; $6000-$6001 -- version header
 HeldButtons = $60f0
 ReleasedButtons = $60f2
 LastReadButtons = $60f4
 PressedButtons = $60f6
-
+SettableTypes: .byte $0, $0, $0, $1
+MaxSettableValues: .byte $F, $F, $4
 SettablesCount = $4
 Settables = $7100
-MaxSettableValues: .byte $F, $F, $4
-
+MenuSelectedItem = $7010
+MenuSelectedSubitem = $7011
 LevelEnding = $7001
 LevelEndingITC = $7002
 LevelStarting = $7003
@@ -30,9 +32,70 @@ MathFrameruleDigitStart = $7200
 MathFrameruleDigitEnd = MathFrameruleDigitStart + 5
 MathInGameFrameruleDigitStart = MathFrameruleDigitEnd
 MathInGameFrameruleDigitEnd = MathInGameFrameruleDigitStart + 5
- 
 ;; $7E00-$7FFF -- relocated bank switching code (starts at 7FA4) 
 RelocatedCodeLocation = $8000 - (RelocatedCode_End - RelocatedCode_Start)
+
+.res $C000 - *, $FF
+ColdTitleReset:
+TitleReset:
+    sei
+    cld
+    ldx #$FF
+    stx $8000
+    txs
+
+    ; set title screen bank
+    lda #BANKNR_TITLE
+    sta $E000
+    lsr
+    sta $E000
+    lsr
+    sta $E000
+    lsr
+    sta $E000
+    lsr
+    sta $E000
+
+    ; enable bank switching
+    lda #2
+    sta $8000
+    lsr
+    sta $8000
+    lsr
+    sta $8000
+    lsr
+    sta $8000
+    lsr
+    sta $8000
+
+    ldx #$00
+    stx PPU_CTRL_REG1
+    stx PPU_CTRL_REG2
+    jsr InitializeMemory
+    jsr ForceClearWRAM
+    lda #8
+    sta MathFrameruleDigitStart
+    ; copy bank switching code into wram so it's
+    ; useable from the original game without too many modifications
+    jsr InitBankSwitchingCode
+:   lda PPU_STATUS
+    bpl :-
+HotReset2:
+:   lda PPU_STATUS
+    bpl :-
+    jsr Title_Setup
+    lda #0
+    sta PPU_SCROLL_REG
+    sta PPU_SCROLL_REG
+    lda #%10011000
+    sta Mirror_PPU_CTRL_REG1
+    sta PPU_CTRL_REG1
+:   jmp :- ; infinite loop until NMI
+
+HotReset:
+    jsr InitializeMemory
+    jsr InitBankSwitchingCode
+    jmp HotReset2
 
 TitleNMI:
     lda Mirror_PPU_CTRL_REG1  ;disable NMIs in mirror reg
@@ -79,8 +142,8 @@ TitleMoveSpritesOffscreen:
 
 InitializeMemory:
     ldx #0
+    lda #0
 @clear:
-    lda #$00
     sta $0000, x
     sta $0200, x
     sta $0300, x
@@ -88,79 +151,44 @@ InitializeMemory:
     sta $0500, x
     sta $0600, x
     sta $0700, x
-    sta $6000, x
-    sta $6100, x
-    sta $6200, x
-    sta $6300, x
     inx
-    bne @clear;
+    bne @clear
+    rts
+
+InitializeWRAM:
+    ldx #ROMSaveHeaderLen
+@Verify:
+    lda ROMSaveHeader, x
+    cmp WRAMSaveHeader, x
+    bne ForceClearWRAM
+    dex
+    bpl @Verify
+    rts
+
+ForceClearWRAM:
+    lda #$60
+    sta $1
+    ldy #0
+    sty $0
+    ldx #$80
+    lda #$00
+@keep_copying:
+    sta ($0),y
+    iny
+    bne @keep_copying
+    ldy #0
+    inc $1
+    cpx $1
+    bne @keep_copying
+    ldx #ROMSaveHeaderLen
+@Sign:
+    lda ROMSaveHeader, x
+    sta WRAMSaveHeader, x
+    dex
+    bpl @Sign
     rts
 
 .include "practise.asm"
-
-
-
-.res $C000 - *, $FF
-ColdTitleReset:
-TitleReset:
-    sei
-    cld
-    ldx #$FF
-    stx $8000
-    txs
-
-    ; set title screen bank
-    lda #BANKNR_TITLE
-    sta $E000
-    lsr
-    sta $E000
-    lsr
-    sta $E000
-    lsr
-    sta $E000
-    lsr
-    sta $E000
-
-    ; enable bank switching
-    lda #2
-    sta $8000
-    lsr
-    sta $8000
-    lsr
-    sta $8000
-    lsr
-    sta $8000
-    lsr
-    sta $8000
-
-    ldx #$00
-    stx PPU_CTRL_REG1
-    stx PPU_CTRL_REG2
-    jsr InitializeMemory
-    ; copy bank switching code into wram so it's
-    ; useable from the original game without too many modifications
-    jsr InitBankSwitchingCode
-:   lda PPU_STATUS
-    bpl :-
-:   lda PPU_STATUS
-    bpl :-
-HotReset2:
-    jsr Title_Setup
-    lda #0
-    sta PPU_SCROLL_REG
-    sta PPU_SCROLL_REG
-    lda #%00011010
-    sta PPU_CTRL_REG2
-    lda #%10011000
-    sta Mirror_PPU_CTRL_REG1
-    sta PPU_CTRL_REG1
-:   jmp :- ; infinite loop until NMI
-
-HotReset:
-    jsr InitializeMemory
-    jsr InitBankSwitchingCode
-    jmp HotReset2
-
 .include "menu.asm"
 .include "utils.asm"
 .include "background.asm"

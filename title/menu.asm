@@ -2,10 +2,6 @@
 Title_Setup:
     jsr ReadJoypads ; read an extra time to prevent presses on the first frame
     inc OperMode_Task
-    lda #0
-    sta PPU_SCROLL_REG
-    sta PPU_SCROLL_REG
-    ;sta PPU_CTRL_REG2
 
     lda #$3F
     sta PPU_ADDRESS
@@ -46,21 +42,15 @@ Title_Setup:
     inx
     bne @WRITE_L4
 
-    ldy #0
-    sty MenuSelectedItem
+    ldy #(SettablesCount-1)
+@KeepDrawing:
     jsr DrawSelectedValueJE
-    iny
-    sty MenuSelectedItem
-    jsr DrawSelectedValueJE
-    iny
-    sty MenuSelectedItem
-    jsr DrawSelectedValueJE
-    iny
-    sty MenuSelectedItem
-    jsr DrawSelectedValueJE
-    ldy #0
-    sty MenuSelectedItem
+    dey
+    bpl @KeepDrawing
 
+    lda #0
+    sta PPU_SCROLL_REG
+    sta PPU_SCROLL_REG
     rts
 
 
@@ -74,6 +64,7 @@ TitleMain:
 @READINPUT:
     and #%00001111
     beq @SELECT
+    ldy MenuSelectedItem
     jsr UpdateSelectedValueJE
     jmp RenderMenu
 @SELECT:
@@ -103,72 +94,9 @@ TitleMain:
 @DONE:
     rts
 RenderMenu:
+    ldy MenuSelectedItem
     jsr DrawSelectedValueJE
     rts
-
-
-
-UpdateSelectedValueJE:
-    lda MenuSelectedItem
-    jsr JumpEngine
-    .word UpdateValueNormal
-    .word UpdateValueNormal
-    .word UpdateValueNormal
-    .word UpdateValueFramerule
-
-DrawSelectedValueJE:
-    ldy MenuSelectedItem
-    tya
-    jsr JumpEngine
-    .word DrawValueNormal
-    .word DrawValueNormal
-    .word DrawValueNormal
-    .word DrawValueFramerule
-
-UpdateValueNormal:
-    clc
-    ldy MenuSelectedItem
-    lda PressedButtons
-    and #%000110
-    bne @Decrement
-@Increment:
-    lda Settables, y
-    adc #1
-    cmp MaxSettableValues, y
-    bcc @Store
-    lda #0
-    bvc @Store
-@Decrement:
-    lda Settables, y
-    beq @Wrap
-    sbc #0
-    bvc @Store
-@Wrap:
-    lda MaxSettableValues, y
-    sbc #0
-@Store:
-    sta Settables, y
-
-DrawValueNormal:
-    clc
-    ldy MenuSelectedItem
-    lda VRAM_Buffer1_Offset
-    tax
-    adc #4
-    sta VRAM_Buffer1_Offset
-    lda SettableRenderLocationsHi, y
-    sta VRAM_Buffer1+0, x
-    lda SettableRenderLocationsLo, y
-    sta VRAM_Buffer1+1, x
-    lda #1
-    sta VRAM_Buffer1+2, x
-    lda Settables, y
-    adc #1
-    sta VRAM_Buffer1+3, x
-    lda #0
-    sta VRAM_Buffer1+4, x
-    rts
-
 
 DrawSelectionMarkers:
     ; set y position
@@ -203,16 +131,60 @@ DrawSelectionMarkers:
     sta Sprite_Attributes + (2 * SpriteLen)
     rts
 
+UpdateSelectedValueJE:
+    lda SettableTypes, y
+    jsr JumpEngine
+    .word UpdateValueNormal
+    .word UpdateValueFramerule
 
+DrawSelectedValueJE:
+    lda SettableTypes, y
+    jsr JumpEngine
+    .word DrawValueNormal
+    .word DrawValueFramerule
 
+UpdateValueNormal:
+    clc
+    lda PressedButtons
+    and #%000110
+    bne @Decrement
+@Increment:
+    lda Settables, y
+    adc #1
+    cmp MaxSettableValues, y
+    bcc @Store
+    lda #0
+    bvc @Store
+@Decrement:
+    lda Settables, y
+    beq @Wrap
+    sbc #0
+    bvc @Store
+@Wrap:
+    lda MaxSettableValues, y
+    sbc #0
+@Store:
+    sta Settables, y
+    rts
 
-
-
-
-
-
-
-SelectedDigit = $700
+DrawValueNormal:
+    clc
+    lda VRAM_Buffer1_Offset
+    tax
+    adc #4
+    sta VRAM_Buffer1_Offset
+    lda SettableRenderLocationsHi, y
+    sta VRAM_Buffer1+0, x
+    lda SettableRenderLocationsLo, y
+    sta VRAM_Buffer1+1, x
+    lda #1
+    sta VRAM_Buffer1+2, x
+    lda Settables, y
+    adc #1
+    sta VRAM_Buffer1+3, x
+    lda #0
+    sta VRAM_Buffer1+4, x
+    rts
 
 UpdateValueFramerule:
     clc
@@ -257,10 +229,10 @@ UpdateValueFramerule:
 @store_value:
     tya
     sta MathFrameruleDigitStart, x
+    rts
 
 DrawValueFramerule:
     clc
-    ldy MenuSelectedItem
     lda VRAM_Buffer1_Offset
     tax
     adc #7
@@ -281,21 +253,6 @@ DrawValueFramerule:
     sta VRAM_Buffer1+3+0, x
     lda #0
     sta VRAM_Buffer1+3+4, x
-    rts
-
-    ldy MenuSelectedItem
-    lda SettableRenderLocationsHi, y
-    sta PPU_ADDRESS
-    lda SettableRenderLocationsLo, y
-    sta PPU_ADDRESS
-    lda MathFrameruleDigitStart+0
-    sta PPU_DATA
-    lda MathFrameruleDigitStart+1
-    sta PPU_DATA
-    lda MathFrameruleDigitStart+2
-    sta PPU_DATA
-    lda MathFrameruleDigitStart+3
-    sta PPU_DATA
     rts
 
 .define SettableRenderLocations $20D3, $2113, $2153, $2190

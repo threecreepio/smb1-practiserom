@@ -89,9 +89,9 @@ PractiseNMI:
     sta PPU_CTRL_REG2
     jmp HotReset
 @CheckForNext:
-
-
 @Next:
+
+
     rts
 
 PractiseWriteBottomStatusLine:

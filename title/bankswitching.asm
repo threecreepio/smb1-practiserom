@@ -54,7 +54,6 @@ jsr BANK_TITLE_RTS
 jsr PractisePrintScore
 jmp BANK_GAME_RTS
 
-.import OutputNumbers
 .export BANK_EndAreaPoints
 BANK_EndAreaPoints =  RelocatedCodeLocation + (* - RelocatedCode_Start)
 lda #4

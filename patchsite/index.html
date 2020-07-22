@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SMB1 Practise ROM Builder</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css">
+    </head>
+    <body>
+        <h1>SMB1 Practise ROM Builder - v0.2</h1>
+
+        <p>
+            This page creates practise roms for Super Mario Bros 1 romhacks.
+        </p>
+
+        <p>
+            It only works with fairly basic hacks at this time, mostly level and sprite changes. <br />
+            Start by adding your romhack .nes rom here:
+        </p>
+
+        <label>
+            <input id="file" style="width:100%" type="file" />
+        </label>
+
+        <p>
+            Any detected issues will be listed in the box below.<br />
+            If there are any warnings, most likely the resulting patch will not function correctly.
+        </p>
+
+        <pre><code id="warnings" style="overflow:auto;height:150px"></code></pre>
+
+        <p>
+            After the file has been added, just <button id="downloadbutton" disabled>click here to download the patched file!</button>
+        </p>
+
+        <h2>How to use the practise rom</h2>
+        
+        <p>
+            The practise rom should be pretty familiar to anyone used to the fantastic Pellsson ROM.
+            <br /> <br />
+            When the ROM starts you will see a menu where you can select starting levels, power-up state and framerule.
+            <br />
+            Press select to switch meun selection, and use the d-pad to change values.
+            <br /><br />
+            While in the actual game, press select + up to restart the level, select + down to return to the menu.
+        </p>
+
+        <p>Enjoy! /threecreepio</p>
+
+
+        <script src="index.js"></script>
+    </body>
+</html>

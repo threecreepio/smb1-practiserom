@@ -150,16 +150,17 @@ UpdateValueNormal:
     bne @Decrement
 @Increment:
     lda Settables, y
-    adc #1
     cmp MaxSettableValues, y
-    bcc @Store
-    lda #0
-    bvc @Store
+    bcc @Inc2
+    lda #$FF
+@Inc2:
+    adc #1
+    jmp @Store
 @Decrement:
     lda Settables, y
     beq @Wrap
     sbc #0
-    bvc @Store
+    jmp @Store
 @Wrap:
     lda MaxSettableValues, y
     sbc #0

@@ -6,12 +6,29 @@
 .import GL_ENTER
 .import GetAreaDataAddrs
 .import LoadAreaPointer
+.import OutputNumbers
 
 ;; header for wram, change this value to clear out wram
+WRAMSaveHeader = $6000
 ROMSaveHeader:
 .byte "P200721"
 ROMSaveHeaderLen = * - ROMSaveHeader - 1
-WRAMSaveHeader = $6000
+
+;; these settings are intended to be changed by the patcher.
+ROMSettings:
+; max values for world, level, powerups
+MaxSettableValues:
+PCOPY_MAX_WORLD_DST = *
+.byte $7
+PCOPY_MAX_LEVEL_DST = *
+.byte $3
+.byte $3
+
+
+
+
+
+
 
 ;; WRAM SPACE
 HeldButtons = $60f0
@@ -19,7 +36,6 @@ ReleasedButtons = $60f2
 LastReadButtons = $60f4
 PressedButtons = $60f6
 SettableTypes: .byte $0, $0, $0, $1
-MaxSettableValues: .byte $F, $F, $4
 SettablesCount = $4
 Settables = $7100
 MenuSelectedItem = $7010
@@ -33,7 +49,7 @@ MathFrameruleDigitEnd = MathFrameruleDigitStart + 5
 MathInGameFrameruleDigitStart = MathFrameruleDigitEnd
 MathInGameFrameruleDigitEnd = MathInGameFrameruleDigitStart + 5
 ;; $7E00-$7FFF -- relocated bank switching code (starts at 7FA4) 
-RelocatedCodeLocation = $8000 - (RelocatedCode_End - RelocatedCode_Start)
+RelocatedCodeLocation = $7E00
 
 .res $C000 - *, $FF
 ColdTitleReset:

@@ -1,8 +1,8 @@
 *.o
+*.lst
 *.nes
 *.dbg
 *.deb
 *.ips
 *.zip
 *.dep
-node_modules

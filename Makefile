@@ -6,10 +6,10 @@ IPS = flips.exe
 .PHONY: clean
 
 %.o: %.asm
-	$(AS) --create-dep "$<.dep" -g --debug-info $< -o $@
+	$(AS) --create-dep "$@.dep" --listing "$@.lst" -g --debug-info $< -o $@
 
 main.nes: layout main.o title/title.o smb.o
-	$(LD)  --dbgfile $@.dbg -C $^ -o $@
+	$(LD)  --dbgfile "$@.dbg" -C $^ -o $@
 
 clean:
 	rm -f ./main*.nes ./*.nes.dbg ./*.o ./*.dep ./*/*.o ./*/*.dep

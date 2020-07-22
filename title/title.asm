@@ -18,11 +18,9 @@ ROMSaveHeaderLen = * - ROMSaveHeader - 1
 ROMSettings:
 ; max values for world, level, powerups
 MaxSettableValues:
-PCOPY_MAX_WORLD_DST = *
-.byte $7
-PCOPY_MAX_LEVEL_DST = *
-.byte $3
-.byte $3
+.byte $8
+.byte $4
+.byte $4
 
 
 

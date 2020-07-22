@@ -1,8 +1,5 @@
 
-Title_Setup:
-    jsr ReadJoypads ; read an extra time to prevent presses on the first frame
-    inc OperMode_Task
-
+Title_SetPalette:
     lda #$3F
     sta PPU_ADDRESS
     lda #$00
@@ -15,6 +12,12 @@ Title_Setup:
     inx
     cpx #(PALETTEEND-PALETTE)
     bne @WRITE_PAL
+    rts
+
+Title_Setup:
+    jsr ReadJoypads ; read an extra time to prevent presses on the first frame
+    inc OperMode_Task
+    jsr Title_SetPalette
 
     ldx #0
     lda #$20
@@ -108,10 +111,10 @@ DrawSelectionMarkers:
     dey
     bpl @Increment
     sta Sprite_Y_Position + (1 * SpriteLen)
-    adc #$6
+    ;adc #$6
     sta Sprite_Y_Position + (2 * SpriteLen)
     ; set x position
-    lda #$A8
+    lda #$A9
     sta Sprite_X_Position + (1 * SpriteLen)
     sbc #$8
     ldy MenuSelectedSubitem
@@ -121,14 +124,15 @@ DrawSelectionMarkers:
     dey
     bpl @Decrement
     sta Sprite_X_Position + (2 * SpriteLen)
-    lda #$CE
-    sta Sprite_Tilenumber + (1 * SpriteLen)
     lda #$00
     sta Sprite_Attributes + (1 * SpriteLen)
-    lda #$8A
-    sta Sprite_Tilenumber + (2 * SpriteLen)
     lda #$21
     sta Sprite_Attributes + (2 * SpriteLen)
+
+    lda #$2E ; main selection sprite
+    sta Sprite_Tilenumber + (1 * SpriteLen)
+    lda #$27 ; sub selection sprite
+    sta Sprite_Tilenumber + (2 * SpriteLen)
     rts
 
 UpdateSelectedValueJE:
@@ -150,17 +154,16 @@ UpdateValueNormal:
     bne @Decrement
 @Increment:
     lda Settables, y
-    cmp MaxSettableValues, y
-    bcc @Inc2
-    lda #$FF
-@Inc2:
     adc #1
-    jmp @Store
+    cmp MaxSettableValues, y
+    bcc @Store
+    lda #0
+    bvc @Store
 @Decrement:
     lda Settables, y
     beq @Wrap
     sbc #0
-    jmp @Store
+    bvc @Store
 @Wrap:
     lda MaxSettableValues, y
     sbc #0

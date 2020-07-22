@@ -1,6 +1,6 @@
 {
   "name": "patchsite",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "",
   "main": "index.js",
   "browserslist": [
@@ -8,14 +8,16 @@
     "not IE 11"
   ],
   "scripts": {
-    "build": "node create-patch-info.js && parcel build index.html",
+    "build": "node create-patch-info.js && rimraf ./dist && parcel build index.html --public-url .",
     "start": "node create-patch-info.js && parcel index.html",
+    "push-site": "npm run build && cd dist && bash -c 'rsync --delete -av ./* creep.io:3creepio/smb1/practise'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "parcel-bundler": "^1.12.4"
+    "parcel-bundler": "^1.12.4",
+    "rimraf": "^3.0.2"
   },
   "dependencies": {
     "vcdiff-decoder": "^0.2.1"

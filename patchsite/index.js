@@ -1,5 +1,7 @@
 import diff from './diff.json'
 
+document.getElementById('version').innerHTML = diff.version ? ` - v${diff.version}` : '';
+
 let download = null;
 const downloadButton = document.getElementById('downloadbutton');
 downloadButton.addEventListener('click', () => { download(); })
@@ -35,6 +37,21 @@ async function applyPatch() {
         output[offset] = replacement;
     }
 
+    const max_worlds = output[0x6a27];
+    let prev = 0, levelcount = 0xFF;
+    for (let i=1; i<max_worlds; ++i) {
+        let count = (output[0x1CC4 + i]) - prev;
+        levelcount = Math.min(count, levelcount);
+        prev += count;
+    }
+
+    reportIssue(`Found ${(1 + max_worlds)} worlds.`);
+    output[0x8017] = max_worlds + 1;
+    
+    reportIssue(`Found ${(levelcount)} levels per world.`);
+    output[0x8018] = levelcount;
+
+    /*
     for (let i=0; i<diff.settings.length; ++i) {
         const set = diff.settings[i];
         if (output[set.dst] !== output[set.src]) {
@@ -42,6 +59,7 @@ async function applyPatch() {
             output[set.dst] = output[set.src];
         }
     }
+    */
 
     reportIssue('Finished applying patch.');
     downloadButton.removeAttribute('disabled');

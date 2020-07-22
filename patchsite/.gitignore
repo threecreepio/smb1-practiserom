@@ -1,1 +1,4 @@
-diff.json
+/diff.json
+/.cache
+/dist
+/node_modules

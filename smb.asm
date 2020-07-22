@@ -616,7 +616,6 @@ PlayerEndWorld:
                lda WorldEndTimer          ;check to see if world end timer expired
                bne EndExitOne             ;branch to leave if not
                ldy WorldNumber            ;check world number
-PCOPY_MAX_WORLD_SRC = *
                cpy #World8                ;if on world 8, player is done with game, 
                bcs EndChkBButton          ;thus branch to read controller
                lda #$00
@@ -5240,7 +5239,6 @@ RdyNextA: lda StarFlagTaskControl
           bne ExitNA                ;beyond last valid task number, branch to leave
           inc LevelNumber           ;increment level number used for game logic
           lda LevelNumber
-PCOPY_MAX_LEVEL_SRC = * + 2
           cmp #$03                  ;check to see if we have yet reached level -4
           bne NextArea              ;and skip this last part here if not
           ldy WorldNumber           ;get world number as offset

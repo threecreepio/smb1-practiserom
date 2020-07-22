@@ -56,6 +56,9 @@ MHD                   = MusicHeaderData
 Start:
             jsr BANK_PractiseReset
             .byte %00010000
+             ;sei                          ;pretty standard 6502 type init here
+             ;cld
+             ;lda #%00010000               ;init PPU control register 1 
              sta PPU_CTRL_REG1
              ldx #$ff                     ;reset stack pointer
              txs

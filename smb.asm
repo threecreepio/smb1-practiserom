@@ -39,6 +39,7 @@ MHD                   = MusicHeaderData
 .import BANK_PractiseDelayToAreaEnd
 .import BANK_PractisePrintScore
 .import BANK_PractiseEnterStage
+.import BANK_PractiseWriteTopStatusLine
 .import BANK_PractiseWriteBottomStatusLine
 .import BANK_PractiseNMI
 .import BANK_ProcJumping
@@ -877,7 +878,8 @@ NoAltPal:      jmp IncSubtask           ;now onto the next task
 
 WriteTopStatusLine:
       lda #$00          ;select main status bar
-      jsr WriteGameText ;output it
+      jsr BANK_PractiseWriteTopStatusLine
+      ;REPLACED;jsr WriteGameText ;output it
       jmp IncSubtask    ;onto the next task
 
 ;-------------------------------------------------------------------------------------

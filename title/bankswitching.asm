@@ -27,6 +27,12 @@ jsr BANK_TITLE_RTS
 jsr PractiseWriteBottomStatusLine
 jmp BANK_GAME_RTS
 
+.export BANK_PractiseWriteTopStatusLine
+BANK_PractiseWriteTopStatusLine =  RelocatedCodeLocation + (* - RelocatedCode_Start)
+jsr BANK_TITLE_RTS
+jsr PractiseWriteTopStatusLine
+jmp BANK_GAME_RTS
+
 .export BANK_PractisePrintScore
 BANK_PractisePrintScore =  RelocatedCodeLocation + (* - RelocatedCode_Start)
 jsr BANK_TITLE_RTS

@@ -33,14 +33,16 @@ HeldButtons = $60f0
 ReleasedButtons = $60f2
 LastReadButtons = $60f4
 PressedButtons = $60f6
+LevelEnding = $6101
+LevelEndingITC = $6102
+LevelStarting = $6103
+PendingScoreDrawPosition = $6104
+CachedITC = $6105
 SettableTypes: .byte $0, $0, $0, $1
 SettablesCount = $4
-Settables = $7100
-MenuSelectedItem = $7010
-MenuSelectedSubitem = $7011
-LevelEnding = $7001
-LevelEndingITC = $7002
-LevelStarting = $7003
+Settables = $7000
+MenuSelectedItem = $7106
+MenuSelectedSubitem = $7107
 MathDigits = $7200
 MathFrameruleDigitStart = $7200
 MathFrameruleDigitEnd = MathFrameruleDigitStart + 5
@@ -140,6 +142,7 @@ TitleNMI:
 
     lda #%00011010
     sta PPU_CTRL_REG2
+    lda Mirror_PPU_CTRL_REG1
     ora #%10000000            ;reactivate NMIs
     sta Mirror_PPU_CTRL_REG1
     sta PPU_CTRL_REG1
@@ -174,6 +177,10 @@ InitializeMemory:
     sta $0500, x
     sta $0600, x
     sta $0700, x
+    sta $6000, x
+    sta $6100, x
+    sta $6200, x
+    sta $6300, x
     inx
     bne @clear
     rts

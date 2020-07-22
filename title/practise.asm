@@ -4,8 +4,6 @@ StatusSizes:
 StatusPowers:
 .byte $0, $1, $2, $2
 
-PendingScoreDrawPosition = $7200
-
 TStartGame:
     ; copy bank switching code into wram so the game can call back
     ; to the practise rom!
@@ -141,7 +139,6 @@ PractiseWriteTopStatusLine:
     sta VRAM_Buffer1, y
     rts
 
-CachedITC = $7101
 PractiseWriteBottomStatusLine:
     lda LevelEnding
     bne @Done

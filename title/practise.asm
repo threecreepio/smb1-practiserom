@@ -5,6 +5,10 @@ StatusPowers:
 .byte $0, $1, $2, $2
 
 TStartGame:
+    ; copy bank switching code into wram so the game can call back
+    ; to the practise rom!
+    jsr InitBankSwitchingCode
+
     ldx #(MathFrameruleDigitEnd - MathFrameruleDigitStart)
 @KeepCopying:
     lda MathFrameruleDigitStart, x

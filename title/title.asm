@@ -101,9 +101,6 @@ TitleReset:
     jsr ForceClearWRAM
     lda #8
     sta MathFrameruleDigitStart
-    ; copy bank switching code into wram so it's
-    ; useable from the original game without too many modifications
-    jsr InitBankSwitchingCode
 :   lda PPU_STATUS
     bpl :-
 HotReset2:

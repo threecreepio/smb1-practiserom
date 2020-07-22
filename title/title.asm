@@ -70,6 +70,18 @@ TitleReset:
     lsr
     sta $E000
 
+    ; set chr
+    lda #0
+    sta $A000
+    lsr
+    sta $A000
+    lsr
+    sta $A000
+    lsr
+    sta $A000
+    lsr
+    sta $A000
+
     ; enable bank switching
     lda #2
     sta $8000

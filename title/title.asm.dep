@@ -1,4 +1,0 @@
-title/title.o:	title/title.asm title/ascii.asm title/../const.inc title/practise.asm title/menu.asm title/utils.asm title/background.asm title/bankswitching.asm title/rng.asm
-
-title/title.asm title/ascii.asm title/../const.inc title/practise.asm title/menu.asm title/utils.asm title/background.asm title/bankswitching.asm title/rng.asm:
-

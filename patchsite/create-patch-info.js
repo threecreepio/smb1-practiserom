@@ -51,7 +51,8 @@ for (let i=0x10 + 0x8000 + 0x8000; i<output.byteLength; ++i) output[i] = 0xFF;
 
 fs.writeFileSync('./diff.json', JSON.stringify({
     version: package.version.replace('(\d+\.\d+)\..*', '$1'),
-    base: output.toString('base64'),
+    //base: output.toString('base64'),
+    prg: output.slice(0x10 + 0x8000, 0x10 + 0x8000 + 0x8000).toString('base64'),
     patches: diff,
     settings,
     copy: [

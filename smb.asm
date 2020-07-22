@@ -54,9 +54,8 @@ MHD                   = MusicHeaderData
 ;-------------------------------------------------------------------------------------
 
 Start:
-             sei                          ;pretty standard 6502 type init here
-             cld
-             lda #%00010000               ;init PPU control register 1 
+            jsr BANK_PractiseReset
+            .byte %00010000
              sta PPU_CTRL_REG1
              ldx #$ff                     ;reset stack pointer
              txs
@@ -15739,6 +15738,5 @@ BrickShatterEnvData:
 
 .res $FFFA - *, $FF
       .word NonMaskableInterrupt
-      .word BANK_PractiseReset
-      ;REPLACED;.word Start
+      .word Start
       .word $fff0  ;unused

@@ -36,16 +36,12 @@ SwimTileRepOffset     = PlayerGraphicsTable + $9e
 MusicHeaderOffsetData = MusicHeaderData - 1
 MHD                   = MusicHeaderData
 
-.import BANK_PractiseDelayToAreaEnd
 .import BANK_PractisePrintScore
 .import BANK_PractiseEnterStage
 .import BANK_PractiseWriteTopStatusLine
 .import BANK_PractiseWriteBottomStatusLine
 .import BANK_PractiseNMI
-.import BANK_ProcJumping
-.import BANK_EndAreaPoints
 .import BANK_PractiseReset
-
 
 ;-------------------------------------------------------------------------------------
 ;DIRECTIVES
@@ -55,11 +51,9 @@ MHD                   = MusicHeaderData
 ;-------------------------------------------------------------------------------------
 
 Start:
-            jsr BANK_PractiseReset
-            .byte %00010000
-             ;sei                          ;pretty standard 6502 type init here
-             ;cld
-             ;lda #%00010000               ;init PPU control register 1 
+             sei                          ;pretty standard 6502 type init here
+             cld
+             lda #%00010000               ;init PPU control register 1 
              sta PPU_CTRL_REG1
              ldx #$ff                     ;reset stack pointer
              txs
@@ -752,8 +746,10 @@ ScreenRoutines:
     
       .word InitScreen
       .word SetupIntermediate
-      .word WriteTopStatusLine
-      .word WriteBottomStatusLine
+      .word BANK_PractiseWriteTopStatusLine
+      .word BANK_PractiseWriteBottomStatusLine
+      ;REPLACED;.word WriteTopStatusLine
+      ;REPLACED;.word WriteBottomStatusLine
       .word DisplayTimeUp
       .word ResetSpritesAndScreenTimer
       .word DisplayIntermediate
@@ -879,15 +875,13 @@ NoAltPal:      jmp IncSubtask           ;now onto the next task
 
 WriteTopStatusLine:
       lda #$00          ;select main status bar
-      jsr BANK_PractiseWriteTopStatusLine
-      ;REPLACED;jsr WriteGameText ;output it
+      jsr WriteGameText ;output it
       jmp IncSubtask    ;onto the next task
 
 ;-------------------------------------------------------------------------------------
 
 WriteBottomStatusLine:
-      jmp BANK_PractiseWriteBottomStatusLine
-      ;REPLACED;jsr GetSBNybbles        ;write player's score and coin tally to screen
+      jsr GetSBNybbles        ;write player's score and coin tally to screen
       ldx VRAM_Buffer1_Offset
       lda #$20                ;write address for world-area number on screen
       sta VRAM_Buffer1,x
@@ -2147,7 +2141,8 @@ ISpr0Loop:   lda Sprite0Data,y
              dey
              bpl ISpr0Loop
              jsr DoNothing2            ;these jsrs doesn't do anything useful
-             jsr DoNothing1
+             jsr BANK_PractiseEnterStage
+             ;REPLACED;jsr DoNothing1
              inc Sprite0HitDetectFlag  ;set sprite #0 check flag
              inc OperMode_Task         ;increment to next task
              rts
@@ -2416,8 +2411,7 @@ ExTrans:   rts
 
 DoNothing1:
       lda #$ff       ;this is residual code, this value is
-      jsr BANK_PractiseEnterStage
-      ;REPLACED;sta $06c9      ;not used anywhere in the program
+      sta $06c9      ;not used anywhere in the program
 DoNothing2:
       rts
 
@@ -5473,8 +5467,7 @@ ProcJumping:
            bpl InitJS                 ;if player's vertical speed motionless or down, branch
            jmp X_Physics              ;if timer at zero and player still rising, do not swim
 InitJS:    lda #$20                   ;set jump/swim timer
-           jsr BANK_ProcJumping
-           ;REPLACED;sta JumpSwimTimer
+           sta JumpSwimTimer
            ldy #$00                   ;initialize vertical force and dummy variable
            sty Player_YMF_Dummy
            sty Player_Y_MoveForce
@@ -9906,8 +9899,7 @@ ELPGive: jsr DigitsMathRoutine  ;award 50 points per game timer interval
          asl
          asl
          ora #%00000100         ;add four to set nybble for game timer
-         jmp BANK_EndAreaPoints
-         ;REPLACED;jmp UpdateNumber       ;jump to print the new score and game timer
+         jmp UpdateNumber       ;jump to print the new score and game timer
 
 RaiseFlagSetoffFWorks:
          lda Enemy_Y_Position,x  ;check star flag's vertical position
@@ -9949,8 +9941,7 @@ DSFLoop: lda Enemy_Rel_YPos         ;get relative vertical coordinate
 DrawFlagSetTimer:
       jsr DrawStarFlag          ;do sub to draw star flag
       lda #$06
-      jsr BANK_PractiseDelayToAreaEnd
-      ;REPLACED;sta EnemyIntervalTimer,x  ;set interval timer here
+      sta EnemyIntervalTimer,x  ;set interval timer here
 
 IncrementSFTask2:
       inc StarFlagTaskControl   ;move onto next task

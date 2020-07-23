@@ -44,28 +44,6 @@ jsr BANK_TITLE_RTS
 jsr PractiseEnterStage
 jmp BANK_GAME_RTS
 
-.export BANK_PractiseDelayToAreaEnd
-BANK_PractiseDelayToAreaEnd =  RelocatedCodeLocation + (* - RelocatedCode_Start)
-sta EnemyIntervalTimer,x
-jsr BANK_TITLE_RTS
-jsr PractiseDelayToAreaEnd
-ldx ObjectOffset
-jmp BANK_GAME_RTS
-
-.export BANK_ProcJumping
-BANK_ProcJumping =  RelocatedCodeLocation + (* - RelocatedCode_Start)
-sta JumpSwimTimer
-jsr BANK_TITLE_RTS
-jsr PractisePrintScore
-jmp BANK_GAME_RTS
-
-.export BANK_EndAreaPoints
-BANK_EndAreaPoints =  RelocatedCodeLocation + (* - RelocatedCode_Start)
-lda #4
-jsr OutputNumbers
-ldx ObjectOffset
-rts
-
 ; scan through levels skipping over any autocontrol stages
 BANK_AdvanceToLevel =  RelocatedCodeLocation + (* - RelocatedCode_Start)
     jsr BANK_GAME_RTS

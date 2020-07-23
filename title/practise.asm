@@ -27,7 +27,7 @@ TStartGame:
     sta PPU_CTRL_REG2
 
     lda #1
-    sta LevelStarting
+    sta EnteringFromMenu
 
     lda #$00
     sta $4015
@@ -60,16 +60,69 @@ TStartGame:
     sta GameEngineSubroutine  ;reset task for game core
     jmp BANK_AdvanceToLevel
 
+CheckStarflag:
+    lda LevelEnding
+    bne @Done
+    lda StarFlagTaskControl
+    cmp #3
+    bne @Done
+    lda #1
+    sta LevelEnding
+    clc
+    lda IntervalTimerControl
+    sbc #$A
+    bpl @Set
+    adc #$15
+@Set:
+    sta CachedITC
+    clc
+    jsr ChangeTopStatusXToRemains
+    jsr PractisePrintScore
+@Done:
+    rts
+
+CheckAreaTimer:
+    clc
+    lda CachedChangeAreaTimer
+    bne @Done
+    lda ChangeAreaTimer
+    beq @Done
+    sta CachedChangeAreaTimer
+    lda IntervalTimerControl
+    ldy WarpZoneControl
+    beq @Store2
+    sbc #$C
+    bpl @Store2
+    adc #$15
+@Store2:
+    clc
+    sta CachedITC
+    jsr PractisePrintScore
+    jsr ChangeTopStatusXToRemains
+@Done:
+    rts
+
+CheckJumpingState:
+    lda JumpSwimTimer
+    cmp #$20
+    bne @Done
+    jsr PractisePrintScore
+@Done:
+    rts
 
 ;; Game enters here at the start of every frame
 PractiseNMI:
-    lda LevelStarting
+    lda EnteringFromMenu
     bne @Done
 @ClearPractisePrintScore:
     ; check if the new status line has been printed
     lda VRAM_Buffer1_Offset
-    bne @IncrementFrameruleCounter
+    bne @CheckTimers
     sta PendingScoreDrawPosition
+@CheckTimers:
+    jsr CheckStarflag
+    jsr CheckJumpingState
+    jsr CheckAreaTimer
 @IncrementFrameruleCounter:
     ; update framerule counter
     ldy IntervalTimerControl
@@ -128,6 +181,7 @@ PractiseWriteTopStatusLine:
     bne @CopyData
     lda #0
     sta VRAM_Buffer1, y
+    inc ScreenRoutineTask
     rts
 
 TopStatusText:
@@ -158,7 +212,7 @@ PractiseWriteBottomStatusLine:
 PractiseEnterStage:
     lda #152
     sta $203
-    lda LevelStarting
+    lda EnteringFromMenu
     beq @Done
     clc
     lda FrameCounter
@@ -166,23 +220,16 @@ PractiseEnterStage:
     sta FrameCounter
     jsr RNGQuickResume
     lda #0
-    sta LevelStarting
+    sta EnteringFromMenu
 @Done:
     lda #0
+    sta CachedChangeAreaTimer
     sta LevelEnding
     jsr PractisePrintScore
     rts
 
-;; Game enters here when we are waiting for the level
-;; to transition to the end screen after grabbing flag.
-;; We can use this to figure out the "R"-value.
-PractiseDelayToAreaEnd:
-    lda #1
-    sta LevelEnding
-    lda IntervalTimerControl
-    sta CachedITC
-    jsr PractisePrintScore
-
+ChangeTopStatusXToRemains:
+    clc
     lda VRAM_Buffer1_Offset
     tay
     adc #4
@@ -199,11 +246,11 @@ PractiseDelayToAreaEnd:
     sta VRAM_Buffer1+4, y
     rts
 
-
 ;; Game enters here when the bottom status line should update.
 PractisePrintScore:
     ; We keep the last spot that we wrote our text here.
     ; That way can keep updating it until the game has a chance to render.
+    clc
     ldy PendingScoreDrawPosition
     bne @RefreshBufferX
     ldy VRAM_Buffer1_Offset
@@ -211,22 +258,22 @@ PractisePrintScore:
     iny
     iny
     sty PendingScoreDrawPosition
-    jsr PrintRule
-    jsr PrintFramecounter
+    jsr @PrintRule
+    jsr @PrintFramecounter
     ldx ObjectOffset
     rts
 @RefreshBufferX:
-    jsr PrintRuleDataAtY
+    jsr @PrintRuleDataAtY
     tya
     adc #9
     tay
-    jsr PrintFramecounterDataAtY
+    jsr @PrintFramecounterDataAtY
     ldx ObjectOffset
     rts
 
 
 ;; Prints the current framerule counter
-PrintRule:
+@PrintRule:
     lda VRAM_Buffer1_Offset
     tay
     adc #(3+6)
@@ -242,11 +289,12 @@ PrintRule:
     iny
     lda #0
     sta VRAM_Buffer1+6,y
-    lda CachedITC
-    sta VRAM_Buffer1+5,y
     lda #$24
     sta VRAM_Buffer1+4,y
-PrintRuleDataAtY:
+
+@PrintRuleDataAtY:
+    lda CachedITC
+    sta VRAM_Buffer1+5,y
     lda MathInGameFrameruleDigitStart+3
     sta VRAM_Buffer1+0,y
     lda MathInGameFrameruleDigitStart+2
@@ -255,6 +303,34 @@ PrintRuleDataAtY:
     sta VRAM_Buffer1+2,y
     lda MathInGameFrameruleDigitStart+0
     sta VRAM_Buffer1+3,y
+    rts
+
+;; Prints the current framecounter value
+@PrintFramecounter:
+    lda VRAM_Buffer1_Offset
+    tay
+    adc #(3+3)
+    sta VRAM_Buffer1_Offset
+    lda #$20
+    sta VRAM_Buffer1,y
+    lda #$75
+    sta VRAM_Buffer1+1,y
+    lda #$03
+    sta VRAM_Buffer1+2,y
+    iny
+    iny
+    iny
+    lda #0
+    sta VRAM_Buffer1+3,y
+@PrintFramecounterDataAtY:
+    lda FrameCounter
+    jsr B10DivBy10
+    sta VRAM_Buffer1+2,y
+    txa
+    jsr B10DivBy10
+    sta VRAM_Buffer1+1,y
+    txa
+    sta VRAM_Buffer1+0,y
     rts
 
 
@@ -342,31 +418,3 @@ UpdateSockfolder:
 @skip:
     rts
 
-
-;; Prints the current framecounter value
-PrintFramecounter:
-    lda VRAM_Buffer1_Offset
-    tay
-    adc #(3+3)
-    sta VRAM_Buffer1_Offset
-    lda #$20
-    sta VRAM_Buffer1,y
-    lda #$75
-    sta VRAM_Buffer1+1,y
-    lda #$03
-    sta VRAM_Buffer1+2,y
-    iny
-    iny
-    iny
-    lda #0
-    sta VRAM_Buffer1+3,y
-PrintFramecounterDataAtY:
-    lda FrameCounter
-    jsr B10DivBy10
-    sta VRAM_Buffer1+2,y
-    txa
-    jsr B10DivBy10
-    sta VRAM_Buffer1+1,y
-    txa
-    sta VRAM_Buffer1+0,y
-    rts

@@ -27,9 +27,9 @@ HeldButtons = $60f0
 ReleasedButtons = $60f2
 LastReadButtons = $60f4
 PressedButtons = $60f6
+CachedChangeAreaTimer = $6020
 LevelEnding = $6101
-LevelEndingITC = $6102
-LevelStarting = $6103
+EnteringFromMenu = $6103
 PendingScoreDrawPosition = $6104
 CachedITC = $6105
 SettableTypes: .byte $0, $0, $0, $1

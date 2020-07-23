@@ -181,6 +181,22 @@ PractiseDelayToAreaEnd:
     sta LevelEnding
     lda IntervalTimerControl
     sta CachedITC
+    jsr PractisePrintScore
+
+    lda VRAM_Buffer1_Offset
+    tay
+    adc #4
+    sta VRAM_Buffer1_Offset
+    lda #$20
+    sta VRAM_Buffer1+0, y
+    lda #$48
+    sta VRAM_Buffer1+1, y
+    lda #1
+    sta VRAM_Buffer1+2, y
+    lda #$1B
+    sta VRAM_Buffer1+3, y
+    lda #0
+    sta VRAM_Buffer1+4, y
     rts
 
 

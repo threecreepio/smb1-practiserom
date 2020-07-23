@@ -18,8 +18,7 @@ jmp BANK_GAME_RTS
 .export BANK_PractiseReset
 BANK_PractiseReset =  RelocatedCodeLocation + (* - RelocatedCode_Start)
 jsr BANK_TITLE_RTS
-jsr TitleReset
-jmp BANK_GAME_RTS
+jmp HotReset
 
 .export BANK_PractiseWriteBottomStatusLine
 BANK_PractiseWriteBottomStatusLine =  RelocatedCodeLocation + (* - RelocatedCode_Start)

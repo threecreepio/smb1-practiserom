@@ -317,7 +317,8 @@ OperModeExecutionTree:
       lda OperMode     ;this is the heart of the entire program,
       jsr JumpEngine   ;most of what goes on starts here
 
-      .word TitleScreenMode
+      .word BANK_PractiseReset
+      ;REPLACED;.word TitleScreenMode
       .word GameMode
       .word VictoryMode
       .word GameOverMode

@@ -100,6 +100,11 @@ TitleReset:
 :   lda PPU_STATUS
     bpl :-
 HotReset2:
+    ldx #$00
+    stx PPU_CTRL_REG1
+    stx PPU_CTRL_REG2
+    ldx #$FF
+    txs
 :   lda PPU_STATUS
     bpl :-
     jsr ReadJoypads     ; read here to prevent a held button at startup from registering

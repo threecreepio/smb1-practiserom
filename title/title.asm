@@ -22,12 +22,6 @@ MaxSettableValues:
 .byte $4
 .byte $4
 
-
-
-
-
-
-
 ;; WRAM SPACE
 HeldButtons = $60f0
 ReleasedButtons = $60f2
@@ -108,7 +102,9 @@ TitleReset:
 HotReset2:
 :   lda PPU_STATUS
     bpl :-
-    jsr Title_Setup
+    jsr ReadJoypads     ; read here to prevent a held button at startup from registering
+    jsr PrepareScreen   ; load in palette and background
+    jsr MenuReset
     lda #0
     sta PPU_SCROLL_REG
     sta PPU_SCROLL_REG
@@ -127,19 +123,15 @@ TitleNMI:
     and #%01111111            ;save all other bits
     sta Mirror_PPU_CTRL_REG1
     sta PPU_CTRL_REG1
-
     bit PPU_STATUS
     jsr WriteVRAMBufferToScreen
     lda #0
     sta PPU_SCROLL_REG
     sta PPU_SCROLL_REG
-
     lda #$02
     sta SPR_DMA
-
     jsr ReadJoypads
-    jsr TitleMain       ; run title application
-
+    jsr MenuNMI
     lda #%00011010
     sta PPU_CTRL_REG2
     lda Mirror_PPU_CTRL_REG1
@@ -148,22 +140,41 @@ TitleNMI:
     sta PPU_CTRL_REG1
     rti                       ;we are done until the next frame!
 
-RestoreScroll:
-    lda #0
-    sta PPU_SCROLL_REG
-    sta PPU_SCROLL_REG
-    rts
-
-TitleMoveSpritesOffscreen:
-    ldy #$04                ;this routine moves all but sprite 0
-    lda #$f8                ;off the screen
-@SprInitLoop:
-    sta Sprite_Y_Position,y ;write 248 into OAM data's Y coordinate
-    iny                     ;which will move it off the screen
+PrepareScreen:
+    ; copy palettes
+    lda #$3F
+    sta PPU_ADDRESS
+    lda #$00
+    sta PPU_ADDRESS
+    ldx #0
+@CopyPaletteData:
+    clc
+    lda MenuPalette,x
+    sta PPU_DATA
+    inx
+    cpx #(MenuPaletteEnd-MenuPalette)
+    bne @CopyPaletteData
+    ; copy background
+    ldx #0
+    ldy #0
+    lda #$20
+    sta PPU_ADDRESS
+    stx PPU_ADDRESS
+@WriteNextPage:
+    lda MenuBackground+1, x
+    beq @DoneDrawingMenu
+    sta $1
+    lda MenuBackground, x
+    sta $0
+@WriteNextCharacter:
+    lda ($0), y
+    sta PPU_DATA
     iny
-    iny
-    iny
-    bne @SprInitLoop
+    bne @WriteNextCharacter
+    inx
+    inx
+    bne @WriteNextPage
+@DoneDrawingMenu:
     rts
 
 InitializeMemory:

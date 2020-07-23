@@ -1,63 +1,12 @@
-
-Title_SetPalette:
-    lda #$3F
-    sta PPU_ADDRESS
-    lda #$00
-    sta PPU_ADDRESS
-    ldx #0
-@WRITE_PAL:
-    clc
-    lda PALETTE,x
-    sta PPU_DATA
-    inx
-    cpx #(PALETTEEND-PALETTE)
-    bne @WRITE_PAL
-    rts
-
-Title_Setup:
-    jsr ReadJoypads ; read an extra time to prevent presses on the first frame
-    inc OperMode_Task
-    jsr Title_SetPalette
-
-    ldx #0
-    lda #$20
-    sta PPU_ADDRESS
-    lda #$00
-    sta PPU_ADDRESS
-@WRITE_L1:
-    lda BG_L1, x
-    sta PPU_DATA
-    inx
-    bne @WRITE_L1
-@WRITE_L2:
-    lda BG_L2, x
-    sta PPU_DATA
-    inx
-    bne @WRITE_L2
-@WRITE_L3:
-    lda BG_L3, x
-    sta PPU_DATA
-    inx
-    bne @WRITE_L3
-@WRITE_L4:
-    lda BG_L4, x
-    sta PPU_DATA
-    inx
-    bne @WRITE_L4
-
+MenuReset:
     ldy #(SettablesCount-1)
 @KeepDrawing:
     jsr DrawSelectedValueJE
     dey
     bpl @KeepDrawing
-
-    lda #0
-    sta PPU_SCROLL_REG
-    sta PPU_SCROLL_REG
     rts
 
-
-TitleMain:
+MenuNMI:
     jsr DrawSelectionMarkers
     lda PressedButtons
     clc
@@ -111,7 +60,6 @@ DrawSelectionMarkers:
     dey
     bpl @Increment
     sta Sprite_Y_Position + (1 * SpriteLen)
-    ;adc #$6
     sta Sprite_Y_Position + (2 * SpriteLen)
     ; set x position
     lda #$A9

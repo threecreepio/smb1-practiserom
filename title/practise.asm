@@ -1,9 +1,11 @@
 
+;; Player size + power-up state depending on selected powerups
 StatusSizes:
 .byte $1, $0, $0, $1
 StatusPowers:
 .byte $0, $1, $2, $2
 
+;; Load into the game from the menu
 TStartGame:
     ; copy bank switching code into wram so the game can call back
     ; to the practise rom!
@@ -59,16 +61,15 @@ TStartGame:
     jmp BANK_AdvanceToLevel
 
 
-
-
+;; Game enters here at the start of every frame
 PractiseNMI:
     lda LevelStarting
-    bne @Next
-
+    bne @Done
 @ClearPractisePrintScore:
     ; check if the new status line has been printed
-    jsr ClearPractisePrintScore
-
+    lda VRAM_Buffer1_Offset
+    bne @IncrementFrameruleCounter
+    sta PendingScoreDrawPosition
 @IncrementFrameruleCounter:
     ; update framerule counter
     ldy IntervalTimerControl
@@ -78,21 +79,19 @@ PractiseNMI:
     lda #1
     ldx #(MathInGameFrameruleDigitStart - MathDigits)
     jsr B10Add
-
 @CheckUpdateSockfolder:
     tya
     and #3
     cmp #2
     bne @CheckInput
     jsr UpdateSockfolder
-
 @CheckInput:
     lda JoypadBitMask
     and #(Select_Button | Start_Button)
-    beq @Next
+    beq @Done
     lda HeldButtons
     jsr ReadJoypads
-
+@CheckForRestartLevel:
     cmp #(Up_Dir | Select_Button)
     bne @CheckForReset
     lda #0
@@ -102,43 +101,47 @@ PractiseNMI:
     jmp TStartGame
 @CheckForReset:
     cmp #(Down_Dir | Select_Button)
-    bne @CheckForNext
+    bne @Done
     lda #0
     sta PPU_CTRL_REG1
     sta PPU_CTRL_REG2
     jmp HotReset
-@CheckForNext:
-@Next:
+@Done:
     rts
 
-TopStatus:
-  ;.byte $20, $68,   1, " "
-  .byte $20, $43,  21, "RULE x SOCKS TO FRAME"
-  .byte $20, $59,   4, "TIME"
-  .byte $20, $73,   2, $2e, $29
-  .byte $23, $c0, $7f, $aa
-  .byte $23, $c4, $01, %11100000
-TopStatusEnd:
-    .byte $00
 
+;; Game enters here when writing the "MARIO" / "TIME" text
+;; at the top of the screen.
 PractiseWriteTopStatusLine:
-    lda #(TopStatusEnd-TopStatus+1)
+    lda #(TopStatusTextEnd-TopStatusText+1)
     tax
     adc VRAM_Buffer1_Offset
     ldy VRAM_Buffer1_Offset
     sta VRAM_Buffer1_Offset
     ldx #0
 @CopyData:
-    lda TopStatus, x
+    lda TopStatusText, x
     sta VRAM_Buffer1, y
     iny
     inx
-    cpx #(TopStatusEnd-TopStatus)
+    cpx #(TopStatusTextEnd-TopStatusText)
     bne @CopyData
     lda #0
     sta VRAM_Buffer1, y
     rts
 
+TopStatusText:
+  .byte $20, $43,  21, "RULE x SOCKS TO FRAME"
+  .byte $20, $59,   4, "TIME"
+  .byte $20, $73,   2, $2e, $29  ; coin that shows next to the coin counter
+  .byte $23, $c0, $7f, $aa       ; tile attributes for the top row, sets palette
+  .byte $23, $c4, $01, %11100000 ; set palette for the flashing coin
+TopStatusTextEnd:
+   .byte $00
+
+
+;; Game enters here when updating the bottom status line
+;; Which has the game score, coin counter, timer
 PractiseWriteBottomStatusLine:
     lda LevelEnding
     bne @Done
@@ -149,13 +152,9 @@ PractiseWriteBottomStatusLine:
     inc ScreenRoutineTask
     rts
 
-ClearPractisePrintScore:
-    lda VRAM_Buffer1_Offset
-    bne @SkipClear
-    sta PendingScoreDrawPosition
-@SkipClear:
-    rts
 
+;; Game enters here when a new level is loaded.
+;; Used to clear some state and move sprite-0.
 PractiseEnterStage:
     lda #152
     sta $203
@@ -174,9 +173,21 @@ PractiseEnterStage:
     jsr PractisePrintScore
     rts
 
-; print framerules and frame counter
+;; Game enters here when we are waiting for the level
+;; to transition to the end screen after grabbing flag.
+;; We can use this to figure out the "R"-value.
+PractiseDelayToAreaEnd:
+    lda #1
+    sta LevelEnding
+    lda IntervalTimerControl
+    sta CachedITC
+    rts
+
+
+;; Game enters here when the bottom status line should update.
 PractisePrintScore:
-    PractisePrintScoreLen = 13
+    ; We keep the last spot that we wrote our text here.
+    ; That way can keep updating it until the game has a chance to render.
     ldy PendingScoreDrawPosition
     bne @RefreshBufferX
     ldy VRAM_Buffer1_Offset
@@ -198,7 +209,7 @@ PractisePrintScore:
     rts
 
 
-
+;; Prints the current framerule counter
 PrintRule:
     lda VRAM_Buffer1_Offset
     tay
@@ -231,7 +242,7 @@ PrintRuleDataAtY:
     rts
 
 
-
+;; Prints the current sockfolder numbers
 SockfolderData = $2
 UpdateSockfolder:
     ldx VRAM_Buffer1_Offset
@@ -298,7 +309,7 @@ UpdateSockfolder:
     lsr
     sta VRAM_Buffer1+3+3,x ; Y
 
-    ; x scroll
+    ; pointer for where pipes direct player
     lda AreaPointer
     tay
     and #$0F
@@ -316,6 +327,7 @@ UpdateSockfolder:
     rts
 
 
+;; Prints the current framecounter value
 PrintFramecounter:
     lda VRAM_Buffer1_Offset
     tay
@@ -342,12 +354,3 @@ PrintFramecounterDataAtY:
     txa
     sta VRAM_Buffer1+0,y
     rts
-
-
-PractiseDelayToAreaEnd:
-    lda #1
-    sta LevelEnding
-    lda IntervalTimerControl
-    sta CachedITC
-    rts
-

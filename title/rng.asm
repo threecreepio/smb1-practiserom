@@ -7,7 +7,7 @@ resume_5: .byte $00, $7f, $ea, $ec, $80, $38, $37, $0c, $7c, $72, $e6, $f1, $7e,
 resume_6: .byte $00, $11, $a7, $97, $95, $02, $b1, $14, $28, $2e, $8b, $da, $36, $89, $da, $8b, $46, $c8, $de, $a7, $fe, $a2, $b4, $94, $bc, $a1, $27, $6e, $f0, $b4, $07, $6f, $67, $2e, $28, $4f, $07, $35, $5d, $0b, $a5, $2a, $e7, $df, $f6, $a0, $ff, $64, $e4, $a3, $42, $82, $7c, $ea, $c5, $0a, $24, $51, $b2, $58, $da, $fb, $bd, $95, $28, $70, $6c, $53, $9c, $f9, $c1, $b5, $4f, $fd, $d1, $2d, $27, $4b, $1c, $5d, $08, $ee, $4e, $fa, $d3, $a0, $13, $61, $ee, $28, $e0, $f4, $f1, $88, $b3, $28, $b5, $e3, $45
 
 RNGQuickResume:
-    ; start with the quick resume, skips ahead to the nearest 100 framerule
+    ; quickly advance the rng to the nearest 2100th frame
     lda MathFrameruleDigitStart + 3 ; thousands
     jsr MultiplyBy10
     adc MathFrameruleDigitStart + 2 ; hundreds
@@ -26,44 +26,34 @@ RNGQuickResume:
     sta PseudoRandomBitReg+5
     lda resume_6, x
     sta PseudoRandomBitReg+6
-
-    ; now we run the rng up to 100 times for the remainder
 @FrameruleAdjust:
+    ; then step to the nearest 21 frame window
     lda MathFrameruleDigitStart + 1 ; tens
     jsr MultiplyBy10
     adc MathFrameruleDigitStart + 0 ; ones
     tay
     beq @FrameAdjust
     jsr FRStepRNGByY
-
-    ; and then finish off by adjusting for powerup grabs
 @FrameAdjust:
+    ; and adjust for any framerule lag
     lda Settables+2
-
-    ; are we small fire?
 @FrameAdjustSmallFire:
     cmp #3
     bcc @FrameAdjustFire
-    ldy #254 ; bowser lag
+    ldy #254 ; fr lag from bowser damage
     jsr StepRNGByY
-    ldy #59  ; grab mushroom
+    ldy #59  ; fr lag from grabbing mushroom
     jsr StepRNGByY
-
-
-    ; do we have fire?
 @FrameAdjustFire:
     cmp #2
     bcc @FrameAdjustMushroom
-    ldy #63 ; grab fire
+    ldy #63 ; fr lag from grabbing fire flower
     jsr StepRNGByY
-
-    ; do we have mush?
 @FrameAdjustMushroom:
     cmp #1
     bcc @Done
-    ldy #59 ; grab mushroom
+    ldy #59 ; fr lag from grabbing mushroom
     jsr StepRNGByY
-
 @Done:
     rts
 
@@ -111,7 +101,6 @@ FRStepRNG:
     jsr SingleStepRNG
     jsr SingleStepRNG
     rts
-
 
 SingleStepRNG:
     pha

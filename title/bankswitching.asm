@@ -9,6 +9,7 @@ InitBankSwitchingCode:
     bne @KeepCopying
     rts
 
+
 ;; this code is copied into WRAM
 RelocatedCode_Start:
 .org $7E00
@@ -149,9 +150,12 @@ BANK_AdvanceToLevel:
     lda #$a5
     jmp GL_ENTER
 
+PREVIOUS_BANK = $61FF
+BANK_STORE_RTS:
+    sta PREVIOUS_BANK
 BANK_GAME_RTS:
     pha
-    lda #BANKNR_SMB
+    lda PREVIOUS_BANK
     jmp BANK_RTS
 
 BANK_TITLE_RTS:

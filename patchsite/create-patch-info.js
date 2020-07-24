@@ -34,6 +34,5 @@ fs.writeFileSync('./diff.json', JSON.stringify({
     version: package.version.replace('(\d+\.\d+)\..*', '$1'),
     prg: output.slice(prgstart, prgend).toString('base64'),
     patches: diff,
-    symbols: dbg,
-    settings
+    symbols: dbg
 }));

@@ -9,7 +9,7 @@ IPS = flips.exe
 	$(AS) --create-dep "$@.dep" --listing "$@.lst" -g --debug-info $< -o $@
 
 patchsite/diff.json: main.nes
-	cd patchsite && node.exe create-patch-info.js
+	cd patchsite && node create-patch-info.js
 
 main.nes: layout main.o title/title.o smb.o
 	$(LD)  --dbgfile "$@.dbg" -C $^ -o $@

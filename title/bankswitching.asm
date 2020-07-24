@@ -1,51 +1,60 @@
 InitBankSwitchingCode:
-    ldx #(RelocatedCode_End-RelocatedCode_Start)
-:   lda RelocatedCode_Start-1,x
-    sta RelocatedCodeLocation-1,x
-    dex
-    bne :-
+    ldx #0
+@KeepCopying:
+    lda RelocatedCode_Start, x
+    sta RelocatedCodeLocation, x
+    lda RelocatedCode_Start+$100, x
+    sta RelocatedCodeLocation+$100, x
+    inx
+    bne @KeepCopying
     rts
 
 ;; this code is copied into WRAM
 RelocatedCode_Start:
-
+.org $7E00
 .export BANK_PractiseNMI
-BANK_PractiseNMI =  RelocatedCodeLocation + (* - RelocatedCode_Start)
+.export BANK_PractiseReset
+.export BANK_PractiseWriteBottomStatusLine
+.export BANK_PractiseWriteTopStatusLine
+.export BANK_PractisePrintScore
+.export BANK_PractiseEnterStage
+.import FindAreaPointer
+.import PlayerEndWorld
+.import WorldAddrOffsets
+.import NonMaskableInterrupt
+
+BANK_PractiseNMI:
 jsr BANK_TITLE_RTS
 jsr PractiseNMI
 jmp BANK_GAME_RTS
 
-.export BANK_PractiseReset
-BANK_PractiseReset =  RelocatedCodeLocation + (* - RelocatedCode_Start)
+BANK_PractiseReset:
 jsr BANK_TITLE_RTS
 jmp HotReset
 
-.export BANK_PractiseWriteBottomStatusLine
-BANK_PractiseWriteBottomStatusLine =  RelocatedCodeLocation + (* - RelocatedCode_Start)
+BANK_PractiseWriteBottomStatusLine:
 jsr BANK_TITLE_RTS
 jsr PractiseWriteBottomStatusLine
 jmp BANK_GAME_RTS
 
-.export BANK_PractiseWriteTopStatusLine
-BANK_PractiseWriteTopStatusLine =  RelocatedCodeLocation + (* - RelocatedCode_Start)
+BANK_PractiseWriteTopStatusLine:
 jsr BANK_TITLE_RTS
 jsr PractiseWriteTopStatusLine
 jmp BANK_GAME_RTS
 
-.export BANK_PractisePrintScore
-BANK_PractisePrintScore =  RelocatedCodeLocation + (* - RelocatedCode_Start)
+BANK_PractisePrintScore:
 jsr BANK_TITLE_RTS
 jsr PractisePrintScore
 jmp BANK_GAME_RTS
 
-.export BANK_PractiseEnterStage
-BANK_PractiseEnterStage =  RelocatedCodeLocation + (* - RelocatedCode_Start)
+BANK_PractiseEnterStage:
 jsr BANK_TITLE_RTS
 jsr PractiseEnterStage
 jmp BANK_GAME_RTS
+rts
 
 ; scan through levels skipping over any autocontrol stages
-BANK_AdvanceToLevel =  RelocatedCodeLocation + (* - RelocatedCode_Start)
+BANK_AdvanceToLevel:
     jsr BANK_GAME_RTS
     ldx #0
     stx $0
@@ -76,19 +85,16 @@ BANK_AdvanceToLevel =  RelocatedCodeLocation + (* - RelocatedCode_Start)
     lda #$a5
     jmp GL_ENTER
 
-BANK_GAME_RTS =  RelocatedCodeLocation + (* - RelocatedCode_Start)
-BANK_GAME_RTS_CODE:
+BANK_GAME_RTS:
     pha
     lda #BANKNR_SMB
     jmp BANK_RTS
 
-BANK_TITLE_RTS =  RelocatedCodeLocation + (* - RelocatedCode_Start)
-BANK_TITLE_RTS_CODE:
+BANK_TITLE_RTS:
     pha
     lda #BANKNR_TITLE
 
-BANK_RTS =  RelocatedCodeLocation + (* - RelocatedCode_Start)
-BANK_RTS_CODE:
+BANK_RTS:
     sta $E000
     lsr
     sta $E000
@@ -100,4 +106,4 @@ BANK_RTS_CODE:
     sta $E000
     pla
     rts
-RelocatedCode_End:
+.reloc

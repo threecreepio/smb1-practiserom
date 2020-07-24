@@ -1,26 +1,10 @@
 .p02
-.org $8000
-.segment "TITLEPRG"
 .include "ascii.asm"
 .include "../const.inc"
 .import GL_ENTER
 .import GetAreaDataAddrs
 .import LoadAreaPointer
 .import OutputNumbers
-
-;; header for wram, change this value to clear out wram
-WRAMSaveHeader = $6000
-ROMSaveHeader:
-.byte "P200721"
-ROMSaveHeaderLen = * - ROMSaveHeader - 1
-
-;; these settings are intended to be changed by the patcher.
-ROMSettings:
-; max values for world, level, powerups
-MaxSettableValues:
-.byte $8
-.byte $4
-.byte $4
 
 ;; WRAM SPACE
 HeldButtons = $60f0
@@ -32,7 +16,6 @@ LevelEnding = $6101
 EnteringFromMenu = $6103
 PendingScoreDrawPosition = $6104
 CachedITC = $6105
-SettableTypes: .byte $0, $0, $0, $1
 SettablesCount = $4
 Settables = $7000
 MenuSelectedItem = $7106
@@ -45,51 +28,24 @@ MathInGameFrameruleDigitEnd = MathInGameFrameruleDigitStart + 5
 ;; $7E00-$7FFF -- relocated bank switching code (starts at 7FA4) 
 RelocatedCodeLocation = $7E00
 
-.res $C000 - *, $FF
-ColdTitleReset:
-TitleReset:
-    sei
-    cld
-    ldx #$FF
-    stx $8000
-    txs
+.segment "TITLEPRG0"
+;; header for wram, change this value to clear out wram
+WRAMSaveHeader = $6000
+ROMSaveHeader:
+.byte $03, $03, $03, $03, $20, $07, $21
+ROMSaveHeaderLen = * - ROMSaveHeader - 1
+SettableTypes: .byte $0, $0, $0, $1
 
-    ; set title screen bank
-    lda #BANKNR_TITLE
-    sta $E000
-    lsr
-    sta $E000
-    lsr
-    sta $E000
-    lsr
-    sta $E000
-    lsr
-    sta $E000
+;; these settings are intended to be changed by the patcher.
+ROMSettings:
+; max values for world, level, powerups
+MaxSettableValues:
+.byte $8
+.byte $4
+.byte $4
 
-    ; set chr
-    lda #0
-    sta $A000
-    lsr
-    sta $A000
-    lsr
-    sta $A000
-    lsr
-    sta $A000
-    lsr
-    sta $A000
-
-    ; enable bank switching
-    lda #2
-    sta $8000
-    lsr
-    sta $8000
-    lsr
-    sta $8000
-    lsr
-    sta $8000
-    lsr
-    sta $8000
-
+.byte BANKNR_TITLE
+TitleReset2:
     ldx #$00
     stx PPU_CTRL_REG1
     stx PPU_CTRL_REG2
@@ -107,6 +63,8 @@ HotReset2:
     txs
 :   lda PPU_STATUS
     bpl :-
+    jsr InitBankSwitchingCode
+    jsr BANK_LoadWorldCount
     jsr ReadJoypads     ; read here to prevent a held button at startup from registering
     jsr PrepareScreen   ; load in palette and background
     jsr MenuReset
@@ -165,6 +123,7 @@ PrepareScreen:
     lda #$20
     sta PPU_ADDRESS
     stx PPU_ADDRESS
+
 @WriteNextPage:
     lda MenuBackground+1, x
     beq @DoneDrawingMenu
@@ -241,7 +200,55 @@ ForceClearWRAM:
 .include "bankswitching.asm"
 .include "rng.asm"
 
-.res $FFFA - *, $FF
+.segment "TITLEPRG1"
+ColdTitleReset:
+    sei
+    cld
+    ldx #$FF
+    stx $8000
+    txs
+
+    ; set title screen bank
+    lda #BANKNR_TITLE
+    sta $E000
+    lsr
+    sta $E000
+    lsr
+    sta $E000
+    lsr
+    sta $E000
+    lsr
+    sta $E000
+
+    ; set chr
+    lda #0
+    sta $A000
+    lsr
+    sta $A000
+    lsr
+    sta $A000
+    lsr
+    sta $A000
+    lsr
+    sta $A000
+
+    ; enable bank switching
+    lda #$2
+    sta $8000
+    lsr
+    sta $8000
+    lsr
+    sta $8000
+    lsr
+    sta $8000
+    lsr
+    sta $8000
+
+    ; title screen reset
+    jmp TitleReset2
+
+
+.segment "TITLEVEC"
 .word TitleNMI
 .word ColdTitleReset
 .word ColdTitleReset

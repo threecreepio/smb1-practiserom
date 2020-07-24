@@ -15738,5 +15738,5 @@ BrickShatterEnvData:
 
 .res $FFFA - *, $FF
       .word NonMaskableInterrupt
-      .word Start
+      .word BANK_PractiseReset
       .word $fff0  ;unused

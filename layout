@@ -2,6 +2,7 @@ MEMORY
 {
 	INES:        start =     0, size =    $10, fill=yes, fillval=$00;
 	SMBPRG:      start = $8000, size =  $8000, fill=yes, fillval=$FF;
+	EMPTY:       start =     0, size = $30000, fill=yes, fillval=$00;
 	TITLEPRG0:   start = $8000, size =  $4000, fill=yes, fillval=$FF;
 	TITLEPRG1:   start = $C000, size =  $3FFA, fill=yes, fillval=$FF;
 	TITLEVEC:    start = $FFFA, size =     $6, fill=yes, fillval=$FF;

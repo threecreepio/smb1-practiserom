@@ -27,6 +27,7 @@
 .export GetAreaDataAddrs
 .export LoadAreaPointer
 .export OutputNumbers
+.export NonMaskableInterrupt
 
 WarmBootOffset        = <$07d6
 ColdBootOffset        = <$07fe
@@ -610,6 +611,7 @@ ExitMsgs:      rts                           ;leave
 
 ;-------------------------------------------------------------------------------------
 
+.export PlayerEndWorld
 PlayerEndWorld:
                lda WorldEndTimer          ;check to see if world end timer expired
                bne EndExitOne             ;branch to leave if not
@@ -3749,6 +3751,7 @@ GetAreaType: and #%01100000       ;mask out all but d6 and d5
              sta AreaType         ;save 2 MSB as area type
              rts
 
+.export FindAreaPointer
 FindAreaPointer:
       ldy WorldNumber        ;load offset from world variable
       lda WorldAddrOffsets,y
@@ -3841,7 +3844,7 @@ StoreStyle: sta AreaStyle
 
 ;-------------------------------------------------------------------------------------
 ;GAME LEVELS DATA
-
+.export WorldAddrOffsets
 WorldAddrOffsets:
       .byte World1Areas-AreaAddrOffsets, World2Areas-AreaAddrOffsets
       .byte World3Areas-AreaAddrOffsets, World4Areas-AreaAddrOffsets

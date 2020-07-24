@@ -53,6 +53,70 @@ jsr PractiseEnterStage
 jmp BANK_GAME_RTS
 rts
 
+FinalWorld = PlayerEndWorld + 9
+
+; this will attempt to figure out how many worlds there are in the ROM
+; it does this by loading the byte in PlayerEndWorld that sends the
+; player back to the title screen.
+BANK_LoadWorldCount:
+    jsr BANK_GAME_RTS
+    lda FinalWorld
+    sta WorldNumber
+    inc WorldNumber
+    jmp BANK_TITLE_RTS
+    rts
+
+FindAxe:
+    ldy #0
+@NextItem:
+    lda (AreaData), y
+    cmp #$FD
+    beq @Exit
+    cmp (AreaData),y
+    iny
+    and #$0F
+    cmp #$0D ; item needs to be placed a little off screen
+    bne @NextItem2
+    lda (AreaData), y
+    cmp #$42 ; axe item id
+    beq @Finish
+@NextItem2:
+    iny
+    bne @NextItem
+@Exit:
+    lda #1
+@Finish:
+    rts
+
+BANK_LoadLevelCount:
+    jsr BANK_GAME_RTS
+    ; copy out current world number
+    ldx WorldNumber
+    stx $2
+    lda Settables + 0
+    sta WorldNumber
+    lda #0
+    sta LevelNumber
+    sta AreaNumber
+@NextArea:
+    inc AreaNumber
+    jsr LoadAreaPointer
+    jsr GetAreaDataAddrs
+    lda PlayerEntranceCtrl
+    and #%00000100
+    bne @Advance
+    inc LevelNumber ; only increment on non-cutscene levels
+    jsr FindAxe
+    beq @FoundAxe
+@Advance:
+    bne @NextArea
+@FoundAxe:
+    inc LevelNumber
+    lda $2
+    sta WorldNumber
+    jmp BANK_TITLE_RTS
+    rts
+
 ; scan through levels skipping over any autocontrol stages
 BANK_AdvanceToLevel:
     jsr BANK_GAME_RTS

@@ -93,18 +93,45 @@ DrawSelectionMarkers:
     rts
 
 UpdateSelectedValueJE:
-    lda SettableTypes, y
+    tya
     jsr JumpEngine
-    .word UpdateValueNormal
-    .word UpdateValueFramerule
+    .word UpdateValueWorldNumber ; world
+    .word UpdateValueLevelNumber ; level
+    .word UpdateValueNormal      ; p-up
+    .word UpdateValueFramerule   ; framerule
 
 DrawSelectedValueJE:
-    lda SettableTypes, y
+    tya
     jsr JumpEngine
-    .word DrawValueNormal
-    .word DrawValueFramerule
+    .word DrawValueNormal    ; world
+    .word DrawValueNormal    ; level
+    .word DrawValueNormal    ; p-up
+    .word DrawValueFramerule ; framerule
+
+UpdateValueWorldNumber:
+    jsr BANK_LoadWorldCount
+    lda WorldNumber
+    sta $0
+    lda #0
+    sta Settables+1 ; clear level counter
+    ldy #0
+    jmp UpdateValueNormal2
+
+UpdateValueLevelNumber:
+    jsr BANK_LoadLevelCount
+    lda LevelNumber
+    sta $0
+    ldy #1
+    jmp UpdateValueNormal2
 
 UpdateValueNormal:
+    clc
+    lda MaxSettableValues, y
+    sta $0
+    jmp UpdateValueNormal2
+
+
+UpdateValueNormal2:
     clc
     lda PressedButtons
     and #%000110
@@ -112,7 +139,7 @@ UpdateValueNormal:
 @Increment:
     lda Settables, y
     adc #1
-    cmp MaxSettableValues, y
+    cmp $0
     bcc @Store
     lda #0
     bvc @Store
@@ -122,7 +149,7 @@ UpdateValueNormal:
     sbc #0
     bvc @Store
 @Wrap:
-    lda MaxSettableValues, y
+    lda $0
     sbc #0
 @Store:
     sta Settables, y

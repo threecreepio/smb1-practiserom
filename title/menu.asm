@@ -1,8 +1,17 @@
 MenuReset:
+    jsr DrawMenu
+    rts
+
+
+
+DrawMenu:
     ldy #(SettablesCount-1)
+    sty $10
 @KeepDrawing:
     jsr DrawSelectedValueJE
+    ldy $10
     dey
+    sty $10
     bpl @KeepDrawing
     rts
 
@@ -47,7 +56,7 @@ MenuNMI:
     rts
 RenderMenu:
     ldy MenuSelectedItem
-    jsr DrawSelectedValueJE
+    jsr DrawMenu
     rts
 
 DrawSelectionMarkers:

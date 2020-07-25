@@ -45,7 +45,7 @@ TStartGame:
     lda StatusPowers,x
     sta PlayerStatus
 
-    lda #$7F
+    lda #$2
     sta NumberofLives
 
     inc FetchNewGameTimerFlag ;set game timer flag to reload
@@ -211,6 +211,8 @@ PractiseWriteBottomStatusLine:
 ;; Game enters here when a new level is loaded.
 ;; Used to clear some state and move sprite-0.
 PractiseEnterStage:
+    lda #3
+    sta NumberofLives
     lda #152
     sta $203
     lda EnteringFromMenu

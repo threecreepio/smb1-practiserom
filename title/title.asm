@@ -63,7 +63,6 @@ HotReset2:
 :   lda PPU_STATUS
     bpl :-
     jsr InitBankSwitchingCode
-    jsr BANK_LoadWorldCount
     jsr ReadJoypads     ; read here to prevent a held button at startup from registering
     jsr PrepareScreen   ; load in palette and background
     jsr MenuReset

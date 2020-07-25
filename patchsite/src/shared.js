@@ -10,3 +10,17 @@ export function applyPatches(file, patches, fileOffset) {
         file[ofs] = replacement;
     }
 }
+
+export function searchReplace(file, patterns) {
+    for (let i=0; i<file.byteLength; ++i) {
+        outer: for (const n of patterns) {
+            for (let j=0; j<n.search.length; ++j) {
+                if (n.search[j] !== file[i + j]) continue outer;
+            }
+            if (n.warning) reportIssue(`${(i).toString(16)}: ${n.warning}`, false);
+            for (let j=0; j<n.replace.length; ++j) {
+                file[i + j] = n.replace[j];
+            }
+        }
+    }
+}

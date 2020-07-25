@@ -18,7 +18,7 @@ INES_VERTICAL_MIRROR = %00000001
 .segment "PRACTISE_PRG0"
 TitleMMC3NMI:
     jsr BANK_GAME_RTS
-    jmp NonMaskableInterrupt
+    jmp RELOCATE_NonMaskableInterrupt
 
 .segment "PRACTISE_PRG2"
 ColdTitleReset:
@@ -41,7 +41,7 @@ BANK_GAME_NMI:
     jmp TitleNMI
 @InGameMode:
     jsr BANK_GAME_RTS
-    jmp NonMaskableInterrupt
+    jmp RELOCATE_NonMaskableInterrupt
 
 BANK_LEVELBANK_RTS:
     pha

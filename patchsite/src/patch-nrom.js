@@ -19,7 +19,7 @@ export async function applyPatchNROM(filename, source, ines) {
     // add our practise banking code
     applyPatches(output, diff.patches, diff.segments.SMBPRG.offset - 0x10);
     output[0x4] = 0x10; // set 16 prg pages
-    output[0x6] |= 0b00010010; // set MMC1 and enable battery wram
+    output[0x6] = (output[0x6] & 0b00001111) | 0b00010010; // set MMC1 and enable battery wram
     
     reportIssue('Patch applied.');
     setResult(filename, output);

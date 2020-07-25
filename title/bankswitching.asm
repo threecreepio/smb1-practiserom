@@ -22,6 +22,18 @@ InitBankSwitchingCode:
 .export BANK_PractisePrintScore
 .export BANK_PractiseEnterStage
 
+RELOCATE_GetAreaDataAddrs:
+    jmp GetAreaDataAddrs
+RELOCATE_LoadAreaPointer:
+    jmp LoadAreaPointer
+RELOCATE_PlayerEndWorld:
+    jmp PlayerEndWorld
+RELOCATE_NonMaskableInterrupt:
+    jmp NonMaskableInterrupt
+RELOCATE_GL_ENTER:
+    jmp GL_ENTER
+
+
 BANK_PractiseNMI:
 jsr BANK_TITLE_RTS
 jsr PractiseNMI
@@ -52,15 +64,20 @@ jsr PractiseEnterStage
 jmp BANK_GAME_RTS
 rts
 
-FinalWorld = PlayerEndWorld + 9
-
 ; this will attempt to figure out how many worlds there are in the ROM
 ; it does this by loading the byte in PlayerEndWorld that sends the
 ; player back to the title screen.
 BANK_LoadWorldCount:
     jsr BANK_GAME_RTS
-    lda FinalWorld
+    lda #0
     sta WorldNumber
+    sta WorldSelectEnableFlag
+    sta SavedJoypad1Bits
+    sta SavedJoypad2Bits
+@FindFinalWorld:
+    jsr RELOCATE_PlayerEndWorld
+    bne @FindFinalWorld
+@Found:
     inc WorldNumber
     jmp BANK_TITLE_RTS
     rts
@@ -99,9 +116,9 @@ BANK_LoadLevelCount:
     sta AreaNumber
 @NextArea:
     inc AreaNumber
-    jsr LoadAreaPointer
+    jsr RELOCATE_LoadAreaPointer
     jsr BANK_LEVELBANK_RTS ; Refresh the game bank in case of GreatEd
-    jsr GetAreaDataAddrs
+    jsr RELOCATE_GetAreaDataAddrs
     lda PlayerEntranceCtrl
     and #%00000100
     bne @Advance
@@ -126,9 +143,9 @@ BANK_AdvanceToLevel:
     ldx LevelNumber
     beq @LevelFound
 @NextArea:
-    jsr LoadAreaPointer
+    jsr RELOCATE_LoadAreaPointer
     jsr BANK_LEVELBANK_RTS ; Refresh the game bank in case of GreatEd
-    jsr GetAreaDataAddrs
+    jsr RELOCATE_GetAreaDataAddrs
     inc AreaNumber
     lda PlayerEntranceCtrl
     and #%00000100
@@ -145,9 +162,9 @@ BANK_AdvanceToLevel:
     sta AreaNumber
     lda #0
     sta SND_DELTA_REG+1
-    jsr LoadAreaPointer
-    jsr GetAreaDataAddrs
+    jsr RELOCATE_LoadAreaPointer
+    jsr RELOCATE_GetAreaDataAddrs
     lda #$a5
-    jmp GL_ENTER
+    jmp RELOCATE_GL_ENTER
 
 .popseg

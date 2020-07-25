@@ -26,7 +26,6 @@
 .export GL_ENTER
 .export GetAreaDataAddrs
 .export LoadAreaPointer
-.export OutputNumbers
 .export NonMaskableInterrupt
 
 WarmBootOffset        = <$07d6

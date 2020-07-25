@@ -4,7 +4,8 @@
 .import GL_ENTER
 .import GetAreaDataAddrs
 .import LoadAreaPointer
-.import OutputNumbers
+.import PlayerEndWorld
+.import NonMaskableInterrupt
 
 ;; WRAM SPACE
 .segment "TEMPWRAM"

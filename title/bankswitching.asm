@@ -21,10 +21,6 @@ InitBankSwitchingCode:
 .export BANK_PractiseWriteTopStatusLine
 .export BANK_PractisePrintScore
 .export BANK_PractiseEnterStage
-.import FindAreaPointer
-.import PlayerEndWorld
-.import WorldAddrOffsets
-.import NonMaskableInterrupt
 
 BANK_PractiseNMI:
 jsr BANK_TITLE_RTS

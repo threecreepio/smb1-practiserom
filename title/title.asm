@@ -36,14 +36,6 @@ MathInGameFrameruleDigitEnd:
 RelocatedCodeLocation = $7E00
 
 .segment "TITLEPRG0"
-;; header for wram, change this value to clear out wram
-ROMSaveHeader:
-.byte $03, $20, $07, $21, $03
-ROMSaveHeaderLen = * - ROMSaveHeader - 1
-
-
-;; these settings are intended to be changed by the patcher.
-ROMSettings:
 TitleReset2:
     ldx #$00
     stx PPU_CTRL_REG1
@@ -195,6 +187,9 @@ ForceClearWRAM:
 .include "bankswitching.asm"
 .include "rng.asm"
 
+ROMSaveHeader:
+.byte $03, $20, $07, $21, $03
+ROMSaveHeaderLen = * - ROMSaveHeader - 1
 .segment "TITLEPRG1"
 ColdTitleReset:
     sei

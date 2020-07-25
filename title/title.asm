@@ -36,8 +36,8 @@ MathInGameFrameruleDigitEnd:
 ;; $7E00-$7FFF -- relocated bank switching code (starts at 7FA4) 
 RelocatedCodeLocation = $7E00
 
-.segment "TITLEPRG0"
-TitleReset2:
+.segment "PRACTISE_PRG0"
+TitleReset3:
     ldx #$00
     stx PPU_CTRL_REG1
     stx PPU_CTRL_REG2
@@ -192,55 +192,3 @@ ForceClearWRAM:
 ROMSaveHeader:
 .byte $03, $20, $07, $21, $03
 ROMSaveHeaderLen = * - ROMSaveHeader - 1
-.segment "TITLEPRG1"
-ColdTitleReset:
-    sei
-    cld
-    ldx #$FF
-    stx $8000
-    txs
-
-    ; set title screen bank
-    lda #BANKNR_TITLE
-    sta $E000
-    lsr
-    sta $E000
-    lsr
-    sta $E000
-    lsr
-    sta $E000
-    lsr
-    sta $E000
-
-    ; set chr
-    lda #0
-    sta $A000
-    lsr
-    sta $A000
-    lsr
-    sta $A000
-    lsr
-    sta $A000
-    lsr
-    sta $A000
-
-    ; enable bank switching
-    lda #$2
-    sta $8000
-    lsr
-    sta $8000
-    lsr
-    sta $8000
-    lsr
-    sta $8000
-    lsr
-    sta $8000
-
-    ; title screen reset
-    jmp TitleReset2
-
-
-.segment "TITLEVEC"
-.word TitleNMI
-.word ColdTitleReset
-.word ColdTitleReset

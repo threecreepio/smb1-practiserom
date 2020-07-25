@@ -1,0 +1,28 @@
+MEMORY
+{
+	TEMPWRAM:              start = $6000, size =   $100;
+	MENUWRAM:              start = $7000, size =   $100;
+	PRACTISE_WRAMCODE:     start = $7E00, size =   $200;
+
+	INES:                  start =     0, size =    $10, fill=yes, fillval=$00;
+	SMBPRG:                start = $8000, size =  $8000, fill=yes, fillval=$FF;
+	EMPTY:                 start =     0, size = $30000, fill=yes, fillval=$00;
+	PRACTISE_PRG0:         start = $8000, size =  $4000, fill=yes, fillval=$FF;
+	PRACTISE_PRG1:         start = $C000, size =  $3FFA, fill=yes, fillval=$FF;
+	PRACTISE_VEC:          start = $FFFA, size =     $6, fill=yes, fillval=$FF;
+	SMBCHR:                start =     0, size =  $2000, fill=yes, fillval=$FF;
+}
+
+SEGMENTS
+{
+	INES:                  load = INES,  type = ro;
+	SMBPRG:                load = SMBPRG, type = ro;
+	PRACTISE_PRG0:         load = PRACTISE_PRG0, type = ro;
+	PRACTISE_PRG1:         load = PRACTISE_PRG1, type = ro;
+	PRACTISE_VEC:          load = PRACTISE_VEC, type = ro;
+	SMBCHR:                load = SMBCHR, type = ro;
+
+	TEMPWRAM:              load = TEMPWRAM, type = bss;
+	MENUWRAM:              load = MENUWRAM, type = bss;
+	PRACTISE_WRAMCODE:     load = PRACTISE_PRG0, run = PRACTISE_WRAMCODE, type = rw, define = yes;
+}

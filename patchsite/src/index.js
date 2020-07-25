@@ -1,7 +1,4 @@
 import { applyPatch } from './patch';
-import diff from '../diff.json';
-
-document.getElementById('version').innerHTML = diff.version ? ` - v${diff.version}` : '';
 
 const downloadButton = document.getElementById('downloadbutton');
 downloadButton.addEventListener('click', () => { window.downloadPatch(); })

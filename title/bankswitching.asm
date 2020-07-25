@@ -1,11 +1,11 @@
-.import __BANKING_LOAD__, __BANKING_RUN__, __BANKING_SIZE__
+.import __PRACTISE_WRAMCODE_LOAD__, __PRACTISE_WRAMCODE_RUN__, __PRACTISE_WRAMCODE_SIZE__
 InitBankSwitchingCode:
     ldx #0
 @KeepCopying:
-    lda __BANKING_LOAD__, x
-    sta __BANKING_RUN__, x
-    lda __BANKING_LOAD__+$100, x
-    sta __BANKING_RUN__+$100, x
+    lda __PRACTISE_WRAMCODE_LOAD__, x
+    sta __PRACTISE_WRAMCODE_RUN__, x
+    lda __PRACTISE_WRAMCODE_LOAD__+$100, x
+    sta __PRACTISE_WRAMCODE_RUN__+$100, x
     inx
     bne @KeepCopying
     rts
@@ -14,7 +14,7 @@ InitBankSwitchingCode:
 ; this code is copied into WRAM and used to jump between
 ; the game and 
 .pushseg
-.segment "BANKING"
+.segment "PRACTISE_WRAMCODE"
 .export BANK_PractiseNMI
 .export BANK_PractiseReset
 .export BANK_PractiseWriteBottomStatusLine
@@ -104,6 +104,7 @@ BANK_LoadLevelCount:
 @NextArea:
     inc AreaNumber
     jsr LoadAreaPointer
+    jsr BANK_LEVELBANK_RTS ; Refresh the game bank in case of GreatEd
     jsr GetAreaDataAddrs
     lda PlayerEntranceCtrl
     and #%00000100
@@ -130,6 +131,7 @@ BANK_AdvanceToLevel:
     beq @LevelFound
 @NextArea:
     jsr LoadAreaPointer
+    jsr BANK_LEVELBANK_RTS ; Refresh the game bank in case of GreatEd
     jsr GetAreaDataAddrs
     inc AreaNumber
     lda PlayerEntranceCtrl
@@ -152,27 +154,4 @@ BANK_AdvanceToLevel:
     lda #$a5
     jmp GL_ENTER
 
-BANK_STORE_RTS:
-    sta PREVIOUS_BANK
-BANK_GAME_RTS:
-    pha
-    lda PREVIOUS_BANK
-    jmp BANK_RTS
-
-BANK_TITLE_RTS:
-    pha
-    lda #BANKNR_TITLE
-
-BANK_RTS:
-    sta $E000
-    lsr
-    sta $E000
-    lsr
-    sta $E000
-    lsr
-    sta $E000
-    lsr
-    sta $E000
-    pla
-    rts
 .popseg

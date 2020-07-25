@@ -12,6 +12,23 @@ export function reportIssue(text, icon) {
 }
 
 
+export function copy(buffer1, buffer2, offset) {
+  for (let i=0; i<buffer1.length; ++i) {
+    buffer2[i + offset] = buffer1[i];
+  }
+}
+
+export function expect(found, expected) {
+  for (let i=0; i<expected.length; ++i) {
+    if (expected[i] !== found[i]) {
+      reportIssue(`Expected ${Buffer.from(expected).toString('hex')}, found ${Buffer.from(Array.from(found).slice(0, expected.length)).toString('hex')}.`, false);
+      return false;
+    }
+  }
+  return true;
+}
+
+
 export function base64Decode(base64) {
   var decoded = window.atob(base64);
   const bin = new Uint8Array(decoded.length);
@@ -37,4 +54,18 @@ export function parseINES(binary) {
     prg: prgs,
     chr: chrs,
   }
+}
+
+export function setResult(filename, output) {
+  window.downloadPatch = () => {
+    var file = new Blob([output], { type: 'octet/stream' })
+    var url = URL.createObjectURL(file);
+    
+    var link = document.createElement('a');
+    link.download = filename.replace('.nes', ' Practise.nes');
+    link.href = url;
+    link.click();
+    
+    URL.revokeObjectURL(url);
+  };
 }

@@ -53,6 +53,7 @@ TStartGame:
     ; set the startup mode to enter the game immediately
     lda #1
     sta OperMode
+    sta IsPlaying
     lda #0
     sta OperMode_Task
     sta GameEngineSubroutine

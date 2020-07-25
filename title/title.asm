@@ -15,6 +15,7 @@ LastReadButtons: .byte $00
 PressedButtons: .byte $00
 CachedChangeAreaTimer: .byte $00
 LevelEnding: .byte $00
+IsPlaying: .byte $00
 EnteringFromMenu: .byte $00
 PendingScoreDrawPosition: .byte $00
 CachedITC: .byte $00
@@ -79,6 +80,7 @@ TitleNMI:
     bit PPU_STATUS
     jsr WriteVRAMBufferToScreen
     lda #0
+    sta IsPlaying
     sta PPU_SCROLL_REG
     sta PPU_SCROLL_REG
     lda #$02

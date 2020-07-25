@@ -7,44 +7,43 @@
 .import OutputNumbers
 
 ;; WRAM SPACE
-HeldButtons = $60f0
-ReleasedButtons = $60f2
-LastReadButtons = $60f4
-PressedButtons = $60f6
-CachedChangeAreaTimer = $6020
-LevelEnding = $6101
-EnteringFromMenu = $6103
-PendingScoreDrawPosition = $6104
-CachedITC = $6105
-SettablesCount = $4
-Settables = $7000
-MenuSelectedItem = $7106
-MenuSelectedSubitem = $7107
-MathDigits = $7200
-MathFrameruleDigitStart = $7200
-MathFrameruleDigitEnd = MathFrameruleDigitStart + 5
-MathInGameFrameruleDigitStart = MathFrameruleDigitEnd
-MathInGameFrameruleDigitEnd = MathInGameFrameruleDigitStart + 5
+.segment "TEMPWRAM"
+WRAMSaveHeader: .byte $00, $00, $00, $00, $00
+HeldButtons: .byte $00
+ReleasedButtons: .byte $00
+LastReadButtons: .byte $00
+PressedButtons: .byte $00
+CachedChangeAreaTimer: .byte $00
+LevelEnding: .byte $00
+EnteringFromMenu: .byte $00
+PendingScoreDrawPosition: .byte $00
+CachedITC: .byte $00
+PREVIOUS_BANK: .byte $00
+
+.segment "MENUWRAM"
+Settables: .byte $00, $00, $00, $00
+MenuSelectedItem: .byte $00
+MenuSelectedSubitem: .byte $00
+MathDigits:
+MathFrameruleDigitStart:
+  .byte $00, $00, $00, $00, $00 ; selected framerule
+MathFrameruleDigitEnd:
+MathInGameFrameruleDigitStart:
+  .byte $00, $00, $00, $00, $00 ; ingame framerule
+MathInGameFrameruleDigitEnd:
+
 ;; $7E00-$7FFF -- relocated bank switching code (starts at 7FA4) 
 RelocatedCodeLocation = $7E00
 
 .segment "TITLEPRG0"
 ;; header for wram, change this value to clear out wram
-WRAMSaveHeader = $6000
 ROMSaveHeader:
-.byte $03, $03, $03, $03, $20, $07, $21
+.byte $03, $20, $07, $21, $03
 ROMSaveHeaderLen = * - ROMSaveHeader - 1
-SettableTypes: .byte $0, $0, $0, $1
+
 
 ;; these settings are intended to be changed by the patcher.
 ROMSettings:
-; max values for world, level, powerups
-MaxSettableValues:
-.byte $8
-.byte $4
-.byte $4
-
-.byte BANKNR_TITLE
 TitleReset2:
     ldx #$00
     stx PPU_CTRL_REG1
@@ -153,9 +152,6 @@ InitializeMemory:
     sta $0600, x
     sta $0700, x
     sta $6000, x
-    sta $6100, x
-    sta $6200, x
-    sta $6300, x
     inx
     bne @clear
     rts

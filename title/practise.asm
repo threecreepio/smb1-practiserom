@@ -271,7 +271,6 @@ PractisePrintScore:
     ldx ObjectOffset
     rts
 
-
 ;; Prints the current framerule counter
 @PrintRule:
     lda VRAM_Buffer1_Offset
@@ -304,6 +303,8 @@ PractisePrintScore:
     lda MathInGameFrameruleDigitStart+0
     sta VRAM_Buffer1+3,y
     rts
+
+
 
 ;; Prints the current framecounter value
 @PrintFramecounter:

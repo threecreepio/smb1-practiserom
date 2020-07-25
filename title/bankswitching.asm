@@ -1,18 +1,20 @@
+.import __BANKING_LOAD__, __BANKING_RUN__, __BANKING_SIZE__
 InitBankSwitchingCode:
     ldx #0
 @KeepCopying:
-    lda RelocatedCode_Start, x
-    sta RelocatedCodeLocation, x
-    lda RelocatedCode_Start+$100, x
-    sta RelocatedCodeLocation+$100, x
+    lda __BANKING_LOAD__, x
+    sta __BANKING_RUN__, x
+    lda __BANKING_LOAD__+$100, x
+    sta __BANKING_RUN__+$100, x
     inx
     bne @KeepCopying
     rts
 
 
-;; this code is copied into WRAM
-RelocatedCode_Start:
-.org $7E00
+; this code is copied into WRAM and used to jump between
+; the game and 
+.pushseg
+.segment "BANKING"
 .export BANK_PractiseNMI
 .export BANK_PractiseReset
 .export BANK_PractiseWriteBottomStatusLine
@@ -150,7 +152,6 @@ BANK_AdvanceToLevel:
     lda #$a5
     jmp GL_ENTER
 
-PREVIOUS_BANK = $61FF
 BANK_STORE_RTS:
     sta PREVIOUS_BANK
 BANK_GAME_RTS:
@@ -174,4 +175,4 @@ BANK_RTS:
     sta $E000
     pla
     rts
-.reloc
+.popseg

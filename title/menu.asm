@@ -1,8 +1,8 @@
+SettablesCount = $4
+
 MenuReset:
     jsr DrawMenu
     rts
-
-
 
 DrawMenu:
     ldy #(SettablesCount-1)
@@ -97,7 +97,7 @@ UpdateSelectedValueJE:
     jsr JumpEngine
     .word UpdateValueWorldNumber ; world
     .word UpdateValueLevelNumber ; level
-    .word UpdateValueNormal      ; p-up
+    .word UpdateValuePUps        ; p-up
     .word UpdateValueFramerule   ; framerule
 
 DrawSelectedValueJE:
@@ -115,23 +115,21 @@ UpdateValueWorldNumber:
     lda #0
     sta Settables+1 ; clear level counter
     ldy #0
-    jmp UpdateValueNormal2
+    jmp UpdateValueShared
 
 UpdateValueLevelNumber:
     jsr BANK_LoadLevelCount
     lda LevelNumber
     sta $0
     ldy #1
-    jmp UpdateValueNormal2
+    jmp UpdateValueShared
 
-UpdateValueNormal:
-    clc
-    lda MaxSettableValues, y
+UpdateValuePUps:
+    lda #4
     sta $0
-    jmp UpdateValueNormal2
+    jmp UpdateValueShared
 
-
-UpdateValueNormal2:
+UpdateValueShared:
     clc
     lda PressedButtons
     and #%000110

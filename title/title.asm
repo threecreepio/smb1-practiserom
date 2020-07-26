@@ -69,6 +69,8 @@ HotReset2:
 :   jmp :- ; infinite loop until NMI
 
 HotReset:
+    lda #0
+    sta SND_MASTERCTRL_REG
     jsr InitializeMemory
     jsr InitBankSwitchingCode
     jmp HotReset2

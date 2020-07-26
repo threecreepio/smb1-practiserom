@@ -94,6 +94,7 @@ FindAxe:
     cmp #$0D ; item needs to be placed a little off screen
     bne @NextItem2
     lda (AreaData), y
+    and #%01111111
     cmp #$42 ; axe item id
     beq @Finish
 @NextItem2:
@@ -115,10 +116,10 @@ BANK_LoadLevelCount:
     sta LevelNumber
     sta AreaNumber
 @NextArea:
-    inc AreaNumber
     jsr RELOCATE_LoadAreaPointer
     jsr BANK_LEVELBANK_RTS ; Refresh the game bank in case of GreatEd
     jsr RELOCATE_GetAreaDataAddrs
+    inc AreaNumber
     lda PlayerEntranceCtrl
     and #%00000100
     bne @Advance
@@ -128,7 +129,6 @@ BANK_LoadLevelCount:
 @Advance:
     bne @NextArea
 @FoundAxe:
-    inc LevelNumber
     lda $2
     sta WorldNumber
     jmp BANK_TITLE_RTS

@@ -37,23 +37,37 @@ RNGQuickResume:
 @FrameAdjust:
     ; and adjust for any framerule lag
     lda Settables+2
-@FrameAdjustSmallFire:
-    cmp #3
-    bcc @FrameAdjustFire
-    ldy #254 ; fr lag from bowser damage
-    jsr StepRNGByY
-    ldy #59  ; fr lag from grabbing mushroom
-    jsr StepRNGByY
-@FrameAdjustFire:
-    cmp #2
-    bcc @FrameAdjustMushroom
-    ldy #63 ; fr lag from grabbing fire flower
-    jsr StepRNGByY
-@FrameAdjustMushroom:
+
+    ; big normal
     cmp #1
     bcc @Done
     ldy #59 ; fr lag from grabbing mushroom
     jsr StepRNGByY
+
+    ; big fire
+    cmp #2
+    bcc @Done
+    ldy #63 ; fr lag from grabbing fire
+    jsr StepRNGByY
+
+    ; big small
+    cmp #3
+    bcc @Done
+    ldy #191 ; fr lag from damage
+    jsr StepRNGByY
+
+    ; small big
+    cmp #4
+    bcc @Done
+    ldy #59 ; fr lag from grabbing mushroom
+    jsr StepRNGByY
+
+    ; small fire
+    cmp #5
+    bcc @Done
+    ldy #63 ; fr lag from grabbing fire
+    jsr StepRNGByY
+
 @Done:
     rts
 

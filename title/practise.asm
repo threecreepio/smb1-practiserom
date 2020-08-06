@@ -1,9 +1,9 @@
 
 ;; Player size + power-up state depending on selected powerups
 StatusSizes:
-.byte $1, $0, $0, $1
+.byte $1, $0, $0, $0, $1, $1
 StatusPowers:
-.byte $0, $1, $2, $2
+.byte $0, $1, $2, $0, $1, $2
 
 ;; Load into the game from the menu
 TStartGame:

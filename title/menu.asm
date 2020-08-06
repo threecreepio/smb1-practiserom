@@ -125,7 +125,7 @@ UpdateValueLevelNumber:
     jmp UpdateValueShared
 
 UpdateValuePUps:
-    lda #4
+    lda #6
     sta $0
     jmp UpdateValueShared
 

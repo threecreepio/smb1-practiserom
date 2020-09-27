@@ -109,16 +109,26 @@ DrawSelectedValueJE:
     .word DrawValueFramerule ; framerule
 
 UpdateValueWorldNumber:
+    ldx #$FF
+    lda HeldButtons
+    and #%10000000
+    bne @Skip
     jsr BANK_LoadWorldCount
     ldx WorldNumber
+    @Skip:
     stx $0
     ldy #0
     sty Settables+1 ; clear level counter
     jmp UpdateValueShared
 
 UpdateValueLevelNumber:
+    ldx #$FF
+    lda HeldButtons
+    and #%10000000
+    bne @Skip
     jsr BANK_LoadLevelCount
     ldx LevelNumber
+    @Skip:
     stx $0
     ldy #1
     jmp UpdateValueShared

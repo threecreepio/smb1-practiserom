@@ -110,17 +110,16 @@ DrawSelectedValueJE:
 
 UpdateValueWorldNumber:
     jsr BANK_LoadWorldCount
-    lda WorldNumber
-    sta $0
-    lda #0
-    sta Settables+1 ; clear level counter
+    ldx WorldNumber
+    stx $0
     ldy #0
+    sty Settables+1 ; clear level counter
     jmp UpdateValueShared
 
 UpdateValueLevelNumber:
     jsr BANK_LoadLevelCount
-    lda LevelNumber
-    sta $0
+    ldx LevelNumber
+    stx $0
     ldy #1
     jmp UpdateValueShared
 

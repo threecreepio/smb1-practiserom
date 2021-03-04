@@ -36,7 +36,7 @@ RNGQuickResume:
     jsr FRStepRNGByY
 @FrameAdjust:
     ; and adjust for any framerule lag
-    lda Settables+2
+    lda SettablesPUP
 
     ; big normal
     cmp #1

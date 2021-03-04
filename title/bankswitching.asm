@@ -110,7 +110,7 @@ BANK_LoadLevelCount:
     ; copy out current world number
     ldx WorldNumber
     stx $2
-    lda Settables + 0
+    lda SettablesWorld
     sta WorldNumber
     lda #0
     sta LevelNumber

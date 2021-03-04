@@ -34,12 +34,12 @@ TStartGame:
     lda #Silence             ;silence music
     sta EventMusicQueue
 
-    ldx Settables
+    ldx SettablesWorld
     stx WorldNumber
-    ldx Settables+1
+    ldx SettablesLevel
     stx LevelNumber
 
-    ldx Settables+2
+    ldx SettablesPUP
     lda StatusSizes,x
     sta PlayerSize
     lda StatusPowers,x
@@ -47,6 +47,9 @@ TStartGame:
 
     lda #$2
     sta NumberofLives
+
+    lda #$4
+    sta IntervalTimerControl
 
     inc FetchNewGameTimerFlag ;set game timer flag to reload
 
@@ -65,16 +68,11 @@ CheckStarflag:
     lda LevelEnding
     bne @Done
     lda StarFlagTaskControl
-    cmp #3
+    cmp #4
     bne @Done
     lda #1
     sta LevelEnding
-    clc
     lda IntervalTimerControl
-    sbc #$A
-    bpl @Set
-    adc #$15
-@Set:
     sta CachedITC
     clc
     jsr ChangeTopStatusXToRemains
@@ -83,23 +81,17 @@ CheckStarflag:
     rts
 
 CheckAreaTimer:
-    clc
     lda CachedChangeAreaTimer
     bne @Done
     lda ChangeAreaTimer
     beq @Done
     sta CachedChangeAreaTimer
     lda IntervalTimerControl
-    ldy WarpZoneControl
-    beq @Store2
-    sbc #$C
-    bpl @Store2
-    adc #$15
 @Store2:
-    clc
     sta CachedITC
-    jsr PractisePrintScore
+    clc
     jsr ChangeTopStatusXToRemains
+    jsr PractisePrintScore
 @Done:
     rts
 
@@ -118,21 +110,13 @@ PractiseNMI:
 @ClearPractisePrintScore:
     ; check if the new status line has been printed
     lda VRAM_Buffer1_Offset
-    bne @CheckTimers
+    bne @IncrementFrameruleCounter
     sta PendingScoreDrawPosition
-@CheckTimers:
+@IncrementFrameruleCounter:
+    jsr IncrementFrameruleCounter
     jsr CheckStarflag
     jsr CheckJumpingState
     jsr CheckAreaTimer
-@IncrementFrameruleCounter:
-    ; update framerule counter
-    ldy IntervalTimerControl
-    cpy #$14
-    bne @CheckUpdateSockfolder
-    clc
-    lda #1
-    ldx #(MathInGameFrameruleDigitStart - MathDigits)
-    jsr B10Add
 @CheckUpdateSockfolder:
     tya
     and #3
@@ -163,6 +147,19 @@ PractiseNMI:
 @Done:
     rts
 
+IncrementFrameruleCounter:
+    ; update framerule counter
+    lda TimerControl
+    bne @Done
+    ldy IntervalTimerControl
+    cpy #1
+    bne @Done
+    clc
+    lda #1
+    ldx #(MathInGameFrameruleDigitStart - MathDigits)
+    jsr B10Add
+@Done:
+    rts
 
 ;; Game enters here when writing the "MARIO" / "TIME" text
 ;; at the top of the screen.
@@ -217,9 +214,9 @@ PractiseEnterStage:
     sta $203
     lda EnteringFromMenu
     beq @Done
-    clc
+    sec
     lda FrameCounter
-    sbc #5
+    sbc #6
     sta FrameCounter
     jsr RNGQuickResume
     lda #0

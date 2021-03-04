@@ -1,14 +1,78 @@
 SettablesCount = $4
+MenuTextPtr = $C3
+MenuTextLen = $C2
+
+.pushseg
+.segment "MENUWRAM"
+MenuSelectedItem: .byte $00
+MenuSelectedSubitem: .byte $00
+Settables:
+SettablesWorld: .byte $00
+SettablesLevel: .byte $00
+SettablesPUP:   .byte $00
+SettablesRule:  .byte $00
+.popseg
+
+MenuTitles:
+.byte "WORLD   "
+.byte "LEVEL   "
+.byte "P-UP    "
+.byte "RULE    "
+
+.define MenuTitleLocations \
+    $20CA + ($40 * 0), \
+    $20CA + ($40 * 1), \
+    $20CA + ($40 * 2), \
+    $20CA + ($40 * 3)
+
+.define MenuValueLocations \
+    $20D3 + ($40 * 0) - 0, \
+    $20D3 + ($40 * 1) - 0, \
+    $20D3 + ($40 * 2) - 3, \
+    $20D3 + ($40 * 3) - 3
 
 MenuReset:
     jsr DrawMenu
+    rts
+
+DrawMenuTitle:
+    clc
+    lda VRAM_Buffer1_Offset
+    tax
+    adc #3 + 5
+    sta VRAM_Buffer1_Offset
+    lda MenuTitleLocationsHi, y
+    sta VRAM_Buffer1+0, x
+    lda MenuTitleLocationsLo, y
+    sta VRAM_Buffer1+1, x
+    lda #5
+    sta VRAM_Buffer1+2, x
+    tya
+    rol a
+    rol a
+    rol a
+    tay
+    lda MenuTitles,y
+    sta VRAM_Buffer1+3, x
+    lda MenuTitles+1,y
+    sta VRAM_Buffer1+4, x
+    lda MenuTitles+2,y
+    sta VRAM_Buffer1+5, x
+    lda MenuTitles+3,y
+    sta VRAM_Buffer1+6, x
+    lda MenuTitles+4,y
+    sta VRAM_Buffer1+7, x
+    lda #0
+    sta VRAM_Buffer1+8, x
     rts
 
 DrawMenu:
     ldy #(SettablesCount-1)
     sty $10
 @KeepDrawing:
-    jsr DrawSelectedValueJE
+    jsr DrawMenuTitle
+    ldy $10
+    jsr DrawMenuValueJE
     ldy $10
     dey
     sty $10
@@ -100,12 +164,12 @@ UpdateSelectedValueJE:
     .word UpdateValuePUps        ; p-up
     .word UpdateValueFramerule   ; framerule
 
-DrawSelectedValueJE:
+DrawMenuValueJE:
     tya
     jsr JumpEngine
-    .word DrawValueNormal    ; world
-    .word DrawValueNormal    ; level
-    .word DrawValueNormal    ; p-up
+    .word DrawValueNumber    ; world
+    .word DrawValueNumber    ; level
+    .word DrawValueString_PUp    ; p-up
     .word DrawValueFramerule ; framerule
 
 UpdateValueWorldNumber:
@@ -118,7 +182,7 @@ UpdateValueWorldNumber:
     @Skip:
     stx $0
     ldy #0
-    sty Settables+1 ; clear level counter
+    sty SettablesLevel ; clear level counter
     jmp UpdateValueShared
 
 UpdateValueLevelNumber:
@@ -162,15 +226,15 @@ UpdateValueShared:
     sta Settables, y
     rts
 
-DrawValueNormal:
+DrawValueNumber:
     clc
     lda VRAM_Buffer1_Offset
     tax
     adc #4
     sta VRAM_Buffer1_Offset
-    lda SettableRenderLocationsHi, y
+    lda MenuValueLocationsHi, y
     sta VRAM_Buffer1+0, x
-    lda SettableRenderLocationsLo, y
+    lda MenuValueLocationsLo, y
     sta VRAM_Buffer1+1, x
     lda #1
     sta VRAM_Buffer1+2, x
@@ -232,9 +296,9 @@ DrawValueFramerule:
     tax
     adc #7
     sta VRAM_Buffer1_Offset
-    lda SettableRenderLocationsHi, y
+    lda MenuValueLocationsHi, y
     sta VRAM_Buffer1+0, x
-    lda SettableRenderLocationsLo, y
+    lda MenuValueLocationsLo, y
     sta VRAM_Buffer1+1, x
     lda #4
     sta VRAM_Buffer1+2, x
@@ -250,6 +314,59 @@ DrawValueFramerule:
     sta VRAM_Buffer1+3+4, x
     rts
 
-.define SettableRenderLocations $20D3, $2113, $2153, $2190
-SettableRenderLocationsLo: .lobytes SettableRenderLocations
-SettableRenderLocationsHi: .hibytes SettableRenderLocations
+DrawValueString_PUp:
+    lda Settables,y
+    asl a
+    tax
+    lda PUpStrings,x
+    sta MenuTextPtr
+    lda PUpStrings+1,x
+    sta MenuTextPtr+1
+    lda #5
+    sta MenuTextLen
+    jmp DrawValueString
+
+DrawValueString:
+    clc
+    lda VRAM_Buffer1_Offset
+    tax
+    adc MenuTextLen
+    adc #3
+    sta VRAM_Buffer1_Offset
+    lda MenuValueLocationsHi, y
+    sta VRAM_Buffer1+0, x
+    lda MenuValueLocationsLo, y
+    sta VRAM_Buffer1+1, x
+    lda MenuTextLen
+    sta VRAM_Buffer1+2, x
+    ldy #0
+@CopyNext:
+    lda (MenuTextPtr),y
+    sta VRAM_Buffer1+3, x
+    inx
+    iny
+    cpy MenuTextLen
+    bcc @CopyNext
+    lda #0
+    sta VRAM_Buffer1+4, x
+    rts
+
+PUpStrings:
+.word PUpStrings_0
+.word PUpStrings_1
+.word PUpStrings_2
+.word PUpStrings_3
+.word PUpStrings_4
+.word PUpStrings_5
+
+PUpStrings_0: .byte "NONE "
+PUpStrings_1: .byte " BIG "
+PUpStrings_2: .byte "FIRE "
+PUpStrings_3: .byte "NONE!"
+PUpStrings_4: .byte " BIG!"
+PUpStrings_5: .byte "FIRE!"
+
+MenuValueLocationsLo: .lobytes MenuValueLocations
+MenuValueLocationsHi: .hibytes MenuValueLocations
+MenuTitleLocationsLo: .lobytes MenuTitleLocations
+MenuTitleLocationsHi: .hibytes MenuTitleLocations

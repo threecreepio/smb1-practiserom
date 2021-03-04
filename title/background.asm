@@ -17,7 +17,7 @@ BGDATA:
 .byte $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
 .byte $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
 .byte $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
-.byte $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+.byte $FF, $FF, $FF, $FF, $FF, $00, $00, $00
 .byte $00, $00, $00, $00, $00, $00, $00, $00
 .byte $00, $00, $00, $05, $05, $05, $00, $00
 .byte $00, $00, $00, $00, $00, $00, $00, $00

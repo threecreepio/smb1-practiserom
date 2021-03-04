@@ -53,7 +53,7 @@ RNGQuickResume:
     ; big small
     cmp #3
     bcc @Done
-    ldy #191 ; fr lag from damage
+    ldy #191 ; fr lag from damage (minus fire grab)
     jsr StepRNGByY
 
     ; small big

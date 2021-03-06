@@ -1,4 +1,4 @@
-SettablesCount = $4
+SettablesCount = $5
 MenuTextPtr = $C3
 MenuTextLen = $C2
 
@@ -11,6 +11,7 @@ SettablesWorld: .byte $00
 SettablesLevel: .byte $00
 SettablesPUP:   .byte $00
 SettablesRule:  .byte $00
+SettablesFROFS:  .byte $00
 .popseg
 
 MenuTitles:
@@ -18,18 +19,21 @@ MenuTitles:
 .byte "LEVEL   "
 .byte "P-UP    "
 .byte "RULE    "
+.byte "FROFS   "
 
 .define MenuTitleLocations \
     $20CA + ($40 * 0), \
     $20CA + ($40 * 1), \
     $20CA + ($40 * 2), \
-    $20CA + ($40 * 3)
+    $20CA + ($40 * 3), \
+    $20CA + ($40 * 4)
 
 .define MenuValueLocations \
     $20D3 + ($40 * 0) - 0, \
     $20D3 + ($40 * 1) - 0, \
     $20D3 + ($40 * 2) - 3, \
-    $20D3 + ($40 * 3) - 3
+    $20D3 + ($40 * 3) - 3, \
+    $20D3 + ($40 * 4) - 0
 
 UpdateSelectedValueJE:
     tya
@@ -38,6 +42,7 @@ UpdateSelectedValueJE:
     .word UpdateValueLevelNumber ; level
     .word UpdateValuePUps        ; p-up
     .word UpdateValueFramerule   ; framerule
+    .word UpdateValueFROFS ; break
 
 DrawMenuValueJE:
     tya
@@ -46,6 +51,8 @@ DrawMenuValueJE:
     .word DrawValueNumber    ; level
     .word DrawValueString_PUp    ; p-up
     .word DrawValueFramerule ; framerule
+    .word DrawValueNumber    ; break
+
 
 MenuReset:
     jsr DrawMenu
@@ -195,6 +202,16 @@ UpdateValueLevelNumber:
     @Skip:
     stx $0
     ldy #1
+    jmp UpdateValueShared
+
+UpdateValueFROFS:
+    ldx #$FF
+    lda HeldButtons
+    and #%10000000
+    bne @Skip
+    ldx #20
+    @Skip:
+    stx $0
     jmp UpdateValueShared
 
 UpdateValuePUps:

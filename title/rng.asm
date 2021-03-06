@@ -35,7 +35,13 @@ RNGQuickResume:
     beq @FrameAdjust
     jsr FRStepRNGByY
 @FrameAdjust:
-    ; and adjust for any framerule lag
+    ; broken frameules
+    ldy SettablesFROFS
+    beq @FrameAdjust2
+    jsr StepRNGByY
+
+@FrameAdjust2:
+    ; adjust for any framerule lag
     lda SettablesPUP
 
     ; big normal

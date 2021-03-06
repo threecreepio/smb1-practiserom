@@ -1,6 +1,6 @@
 {
   "name": "patchsite",
-  "version": "0.2.1",
+  "version": "0.4.0",
   "description": "",
   "main": "index.js",
   "browserslist": [
@@ -10,7 +10,7 @@
   "scripts": {
     "build": "rimraf ./dist && parcel build index.html --public-url .",
     "start": "parcel index.html",
-    "push-site": "npm run build && cd dist && bash -c 'rsync --delete -av ./* creep.io:3creepio/smb1/practiserom'",
+    "push-site": "npm run build && cd dist && bash -c 'rsync --delete -av ./* 178.128.45.172:3creepio/smb1/practiserom'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

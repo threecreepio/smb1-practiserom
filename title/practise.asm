@@ -11,7 +11,7 @@ TStartGame:
     ; to the practise rom!
     jsr InitBankSwitchingCode
 
-    ldx #(MathFrameruleDigitEnd - MathFrameruleDigitStart)
+    ldx #(MathFrameruleDigitEnd - MathFrameruleDigitStart - 1)
 @KeepCopying:
     lda MathFrameruleDigitStart, x
     sta MathInGameFrameruleDigitStart, x

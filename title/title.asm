@@ -42,7 +42,7 @@ TitleReset3:
     stx PPU_CTRL_REG2
     jsr InitializeMemory
     jsr ForceClearWRAM
-    lda #9
+    lda #8
     sta MathFrameruleDigitStart
 :   lda PPU_STATUS
     bpl :-

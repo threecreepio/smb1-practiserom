@@ -31,6 +31,22 @@ MenuTitles:
     $20D3 + ($40 * 2) - 3, \
     $20D3 + ($40 * 3) - 3
 
+UpdateSelectedValueJE:
+    tya
+    jsr JumpEngine
+    .word UpdateValueWorldNumber ; world
+    .word UpdateValueLevelNumber ; level
+    .word UpdateValuePUps        ; p-up
+    .word UpdateValueFramerule   ; framerule
+
+DrawMenuValueJE:
+    tya
+    jsr JumpEngine
+    .word DrawValueNumber    ; world
+    .word DrawValueNumber    ; level
+    .word DrawValueString_PUp    ; p-up
+    .word DrawValueFramerule ; framerule
+
 MenuReset:
     jsr DrawMenu
     rts
@@ -155,22 +171,6 @@ DrawSelectionMarkers:
     lda #$27 ; sub selection sprite
     sta Sprite_Tilenumber + (2 * SpriteLen)
     rts
-
-UpdateSelectedValueJE:
-    tya
-    jsr JumpEngine
-    .word UpdateValueWorldNumber ; world
-    .word UpdateValueLevelNumber ; level
-    .word UpdateValuePUps        ; p-up
-    .word UpdateValueFramerule   ; framerule
-
-DrawMenuValueJE:
-    tya
-    jsr JumpEngine
-    .word DrawValueNumber    ; world
-    .word DrawValueNumber    ; level
-    .word DrawValueString_PUp    ; p-up
-    .word DrawValueFramerule ; framerule
 
 UpdateValueWorldNumber:
     ldx #$FF

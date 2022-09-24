@@ -1,37 +1,63 @@
+
+; ===========================================================================
+;  Base 10 addition
+; ---------------------------------------------------------------------------
+; Input:
+;   X - offset into base10 value list to add
+;   A - value to add
+; ---------------------------------------------------------------------------
 B10Add:
-    adc MathDigits,x
-    sta MathDigits,x
-B10Carry:
-    lda #9
-    cmp MathDigits,x
-    bcc @B10CarryOne
-    cmp MathDigits+1,x
-    bcc @B10NextCarry
-    rts
-@B10NextCarry:
-    inx
-@B10CarryOne:
-    lda MathDigits,x
-    clc
-    sbc #9
-    sta MathDigits,x
-    inc MathDigits+1,x
-    bvc B10Carry
-    rts
+    clc                        ;
+    adc MathDigits,x           ; add value to digit
+    sta MathDigits,x           ; store result
+:   cmp #10                    ; compare against 10
+    bcc @Done                  ; if less than 10, we're done
+    lda #0                     ; otherwise, set to 0
+    sta MathDigits,x           ; store result
+    inx                        ; move to next digit
+    bmi @Done                  ; if no more digits, we're done
+    lda MathDigits,x           ; get next digit
+    adc #0                     ; add our carry
+    sta MathDigits,x           ; store result
+    bcc :-                     ; and keep going until we don't have a carry
+@Done:                         ;
+    rts                        ;
+; ===========================================================================
 
-
+; ===========================================================================
+;  Divide A value by 10
+; ---------------------------------------------------------------------------
+;  Example:
+;  lda #145
+;  jsr B10DivideBy10
+;  ; A = 5   (remainder)
+;  ; X = 14  (quotient)
+; ---------------------------------------------------------------------------
 B10DivBy10:
-    ldx #$00
-@Continue:
-    cmp #$0a
-    bcc @Done
-    sbc #$0a
-    inx
-    sec
-    bcs @Continue
-@Done:
-    rts
+    ldx #$00                  ; clear result
+:   cmp #$0a                  ; compare current value against 10
+    bcc @Done                 ; if lower, then we are finished
+    sbc #$0a                  ; otherwise subtract 10
+    inx                       ; and increment result
+    bne :-                    ; keep looping
+@Done:                        ;
+    rts                       ; done
+; ===========================================================================
 
+; ================================================================
+;  6502 multiply by 10
+; ----------------------------------------------------------------
+MultiplyBy10:
+    asl                       ; multiply by 2
+    sta $0                    ; store in temp value
+    asl                       ; multiply by 4
+    asl                       ;
+    clc                       ;
+    adc $0                    ; add temp value, so, (A*2*4)+(A*2)
+    rts                       ; done
+; ================================================================
+
+;; copied code from smb1
 WriteVRAMBufferToScreen:
     lda VRAM_Buffer1_Offset
     beq @Skip

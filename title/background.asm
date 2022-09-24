@@ -1,14 +1,3 @@
-.macro ASCII text
-$00
-.endmacro
-
-MenuBackground:
-.word BGDATA
-.word BGDATA+$100
-.word BGDATA+$200
-.word BGDATA+$300
-.word $0000
-
 BGDATA:
 .incbin "../scripts/graphics/menu.bin"
 

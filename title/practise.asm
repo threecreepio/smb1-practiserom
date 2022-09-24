@@ -208,25 +208,36 @@ PractiseWriteBottomStatusLine:
 ;; Game enters here when a new level is loaded.
 ;; Used to clear some state and move sprite-0.
 PractiseEnterStage:
-    lda #3
-    sta NumberofLives
-    lda #152
-    sta $203
-    lda EnteringFromMenu
-    beq @Done
-    sec
-    lda FrameCounter
-    sbc #6
-    sta FrameCounter
-    jsr RNGQuickResume
-    lda #0
-    sta EnteringFromMenu
-@Done:
-    lda #0
-    sta CachedChangeAreaTimer
-    sta LevelEnding
-    jsr PractisePrintScore
-    rts
+    lda #3                                       ; set life counter so we can't lose the game
+    sta NumberofLives                            ;
+    lda #152                                     ; position spr0
+    sta $203                                     ;
+    lda EnteringFromMenu                         ; check if we're entering from the menu
+    beq @SaveToMenu                              ; no, the player beat a level, update the menu state
+    sec                                          ; yes, the player is starting a new game
+    lda FrameCounter                             ; we need to offset the frame counter a little bit
+    sbc #6                                       ;
+    sta FrameCounter                             ;
+    jsr RNGQuickResume                           ; and load the rng state
+    dec EnteringFromMenu                         ; then mark that we've entered from the menu, so this doesn't happen again
+    beq @Shared                                  ; and skip ahead to avoid saving the state for no reason
+@SaveToMenu:
+    lda LevelEnding                              ; check if we are transitioning to a new level
+    beq @Shared                                  ; no - skip ahead and enter the game
+    ldx #(MathFrameruleDigitEnd - MathFrameruleDigitStart - 1) ; yes - copy the framerule to the menu
+:   lda MathInGameFrameruleDigitStart, x         ;
+    sta MathFrameruleDigitStart, x               ;
+    dex                                          ;
+    bpl :-                                       ;
+    lda WorldNumber                              ; copy current world and level to the menu
+    sta SettablesWorld                           ;
+    lda LevelNumber                              ;
+    sta SettablesLevel                           ;
+@Shared:
+    lda #0                                       ; clear out some starting state
+    sta CachedChangeAreaTimer                    ;
+    sta LevelEnding                              ;
+    jmp PractisePrintScore                       ; and update the status line
 
 ChangeTopStatusXToRemains:
     clc

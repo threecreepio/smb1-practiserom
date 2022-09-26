@@ -30,7 +30,6 @@ RNGQuickResume:
     lda resume_6,x                       ;
     sta PseudoRandomBitReg+6             ;
 @FrameruleAdjust:
-    ; then step to the nearest 21 frame window
     lda MathFrameruleDigitStart + 1      ; get ones and tens digits of bcd framerule value
     jsr MultiplyBy10                     ;
     adc MathFrameruleDigitStart + 0      ;
@@ -42,7 +41,7 @@ RNGQuickResume:
     bne :+                               ; yes - skip ahead to adjust rng
     rts                                  ; no - we are done!
 :   ldy @FramerulePowerupAdjust-1,x      ; check rng steps for current powerup value
-    jsr FRStepRNGByY                     ; and adjust the rng for this value
+    jsr StepRNGByY                       ; and adjust the rng for this value
     dex                                  ; decrement to next powerup value
     bne :-                               ; and loop until we reach small mario state
     rts                                  ; then we are done!

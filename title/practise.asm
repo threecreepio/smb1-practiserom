@@ -138,6 +138,7 @@ PractiseEnterStage:
 .byte $3                                         ; size = 0, status = 0. big vuln. mario
 .byte $1                                         ; size = 0, status = 1. big super mario
 .byte $2                                         ; size = 0, status = 2. big fire mario
+.byte $0                                         ; pad
 .byte $0                                         ; size = 1, status = 0. small vuln. mario
 .byte $5                                         ; size = 1, status = 1. small super mario
 .byte $6                                         ; size = 1, status = 2. small fire mario
@@ -480,7 +481,7 @@ RecalculateSockfolder:
     pha                                          ; so store the current value
     clc                                          ;
     lda @DataSubX                                ; get subpixel x position
-    lda #$80                                     ; and increase it by half
+    adc #$80                                     ; and increase it by half
     sta @DataSubX                                ; and store it back
     lda @DataX                                   ; get x position
     adc #$02                                     ; and add 2 + carry value

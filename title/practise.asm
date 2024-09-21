@@ -80,6 +80,8 @@ PractiseNMI:
     sta PPU_CTRL_REG1                            ; disable screen rendering
     sta PPU_CTRL_REG2                            ;
     jsr InitializeMemory                         ; clear memory
+    dex                                          ; decrement X to $FF (was $00 from InitializeMemory)
+    txs                                          ; reset stack pointer
     jmp TStartGame                               ; and start the game
 @CheckForReset:                                  ;
     cmp #(Down_Dir | Select_Button)              ; check if select + down are held
